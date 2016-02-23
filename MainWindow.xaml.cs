@@ -35,7 +35,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <summary>
         /// Thickness of clip edge rectangles
         /// </summary>
-        private const double ClipBoundsThickness = 10;
+        private const double ClipBoundsThickness = 1;
 
         /// <summary>
         /// Constant for clamping Z values of camera space points from being negative
@@ -127,6 +127,13 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// </summary>
         private string statusText = null;
 
+
+        private int numberOfBodies;
+
+        private string udpPort;
+
+        private UdpBroadcast udp;
+
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -211,11 +218,19 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             // Create an image source that we can use in our image control
             this.imageSource = new DrawingImage(this.drawingGroup);
 
+            this.numberOfBodies = 0;
+
             // use the window object as the view model in this simple example
             this.DataContext = this;
 
             // initialize the components (controls) of the window
             this.InitializeComponent();
+
+
+            NetworkConfigFile f = new NetworkConfigFile("network.conf");
+            UdpPort = f.Port; ;
+
+
         }
 
         /// <summary>
@@ -231,6 +246,20 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             get
             {
                 return this.imageSource;
+            }
+        }
+
+        public int NumberOfBodies
+        {
+            get
+            {
+                return this.numberOfBodies;
+            }
+            set
+            {
+                this.numberOfBodies = value;
+                numberOfBodiesLabel.Content = "" + numberOfBodies;
+                usersLabel.Content = numberOfBodies == 1 ? "Body" : "Bodies";
             }
         }
 
@@ -259,6 +288,20 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             }
         }
 
+        public string UdpPort
+        {
+            get
+            {
+                return udpPort;
+            }
+
+            set
+            {
+                udpPort = value;
+                portTextBox.Text = udpPort;
+            }
+        }
+
         /// <summary>
         /// Execute start up tasks
         /// </summary>
@@ -266,6 +309,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <param name="e">event arguments</param>
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            udp = new UdpBroadcast(int.Parse(UdpPort));
+
             if (this.bodyFrameReader != null)
             {
                 this.bodyFrameReader.FrameArrived += this.Reader_FrameArrived;
@@ -301,7 +346,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             bool dataReceived = false;
-
+            
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
             {
                 if (bodyFrame != null)
@@ -309,6 +354,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     if (this.bodies == null)
                     {
                         this.bodies = new Body[bodyFrame.BodyCount];
+                        
                     }
 
                     // The first time GetAndRefreshBodyData is called, Kinect will allocate each Body in the array.
@@ -317,23 +363,35 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     bodyFrame.GetAndRefreshBodyData(this.bodies);
                     dataReceived = true;
                 }
+                
             }
 
             if (dataReceived)
             {
+
+                NumberOfBodies = 0;
+                List<Microsoft.Kinect.Body> bodiesToSend = new List<Body>();
+
                 using (DrawingContext dc = this.drawingGroup.Open())
                 {
                     // Draw a transparent background to set the render size
-                    dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+                    dc.DrawRectangle(Brushes.White, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+
+                    
 
                     int penIndex = 0;
                     foreach (Body body in this.bodies)
                     {
                         Pen drawPen = this.bodyColors[penIndex++];
 
+                        
+
                         if (body.IsTracked)
                         {
-                            this.DrawClippedEdges(body, dc);
+                            NumberOfBodies += 1;
+                            bodiesToSend.Add(body);
+
+                            //this.DrawClippedEdges(body, dc);
 
                             IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
 
@@ -358,11 +416,17 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                             this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
                             this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
+
+                            
                         }
                     }
 
                     // prevent drawing outside of our render area
                     this.drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+
+
+                    BodiesMessage message = new BodiesMessage(bodiesToSend.ToArray());
+                    udp.send(message.Message);
                 }
             }
         }
@@ -512,6 +576,23 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             // on failure, set the status text
             this.StatusText = this.kinectSensor.IsAvailable ? Properties.Resources.RunningStatusText
                                                             : Properties.Resources.SensorNotAvailableStatusText;
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            resetBroadcast();
+        }
+
+        private void portTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter) resetBroadcast();
+        }
+
+        private void resetBroadcast()
+        {
+            UdpPort = portTextBox.Text;
+            udp.reset(int.Parse(UdpPort));
+            expander.IsExpanded = false;
         }
     }
 }
