@@ -1,12 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Samples.Kinect.BodyBasics
 {
+
     internal class Skeleton
     {
 
+        private List<Microsoft.Kinect.JointType> BodyConfidenceAcceptedJoints = new List<Microsoft.Kinect.JointType>()
+        {
+            Microsoft.Kinect.JointType.Head,
+            Microsoft.Kinect.JointType.ShoulderLeft,
+            Microsoft.Kinect.JointType.ElbowLeft,
+            Microsoft.Kinect.JointType.HandLeft,
+            Microsoft.Kinect.JointType.HipLeft,
+            Microsoft.Kinect.JointType.KneeLeft,
+            Microsoft.Kinect.JointType.AnkleLeft,
+            Microsoft.Kinect.JointType.ShoulderRight,
+            Microsoft.Kinect.JointType.ElbowRight,
+            Microsoft.Kinect.JointType.HandRight,
+            Microsoft.Kinect.JointType.HipRight,
+            Microsoft.Kinect.JointType.KneeRight,
+            Microsoft.Kinect.JointType.AnkleRight
+        };
+
         public Skeleton(Microsoft.Kinect.Body body)
         {
+
             Message = ""
             + BodyPropertiesTypes.UID.ToString() + MessageSeparators.SET + body.TrackingId
             + MessageSeparators.L2 + BodyPropertiesTypes.Confidence.ToString() + MessageSeparators.SET + BodyConfidence(body)
@@ -29,10 +49,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
             foreach (Microsoft.Kinect.Joint j in body.Joints.Values)
             {
-                if (j.TrackingState == Microsoft.Kinect.TrackingState.Tracked)
+                if (BodyConfidenceAcceptedJoints.Contains(j.JointType) && j.TrackingState == Microsoft.Kinect.TrackingState.Tracked)
                     confidence += 1;
             }
-
             return confidence;
         }
 
