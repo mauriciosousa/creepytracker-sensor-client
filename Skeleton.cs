@@ -50,7 +50,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             foreach (Microsoft.Kinect.Joint j in body.Joints.Values)
             {
                 if (BodyConfidenceAcceptedJoints.Contains(j.JointType) && j.TrackingState == Microsoft.Kinect.TrackingState.Tracked)
-                    confidence += 1;
+                {
+                    if (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)
+                        confidence += 3;
+                    else
+                        confidence += 1;
+                }
             }
             return confidence;
         }
