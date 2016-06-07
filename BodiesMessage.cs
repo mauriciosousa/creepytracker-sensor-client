@@ -8,6 +8,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 {
     public static class MessageSeparators
     {
+        public const char L0 = '$';
         public const char L1 = '#'; // top level separator -> bodies
         public const char L2 = '/'; // -> body attributes
         public const char L3 = ':'; // -> 3D values
@@ -32,7 +33,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         public BodiesMessage(Microsoft.Kinect.Body   [] listOfBodies)
         {
-            Message = "" + Environment.MachineName;
+            Message = "BodiesMessage"+MessageSeparators.L0 + Environment.MachineName;
             if (listOfBodies.Length == 0) Message += "" + MessageSeparators.L1 + "None";
             else
             {

@@ -72,9 +72,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BodiesMessage.cs" />
+    <Compile Include="CloudMessage.cs" />
     <Compile Include="NetworkConfigFile.cs" />
     <Compile Include="Skeleton.cs" />
     <Compile Include="UdpBroadcast.cs" />
+    <Compile Include="UdpListener.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
