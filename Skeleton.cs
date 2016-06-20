@@ -51,7 +51,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 if (BodyConfidenceAcceptedJoints.Contains(j.JointType) && j.TrackingState == Microsoft.Kinect.TrackingState.Tracked)
                 {
-                    if (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)
+                    if (j.JointType == Microsoft.Kinect.JointType.KneeLeft || j.JointType == Microsoft.Kinect.JointType.KneeRight || j.JointType == Microsoft.Kinect.JointType.Head || j.JointType == Microsoft.Kinect.JointType.SpineMid)
                         confidence += 3;
                     else
                         confidence += 1;
