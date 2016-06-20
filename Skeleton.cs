@@ -66,8 +66,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     else
                         confidence += 1;
                 }
-
-                Console.WriteLine(confidence);
             }
             return confidence;
         }
