@@ -170,6 +170,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private UdpBroadcast udp;
         private UdpListener udpListener;
+        private Dictionary<string, int> JointsConfidenceWeight;
 
         private int step = 1;
         /// <summary>
@@ -177,6 +178,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// </summary>
         public MainWindow()
         {
+            
+
             // one sensor is currently supported
             this.kinectSensor = KinectSensor.GetDefault();
 
@@ -286,12 +289,15 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             // use the window object as the view model in this simple example
             this.DataContext = this;
 
+
+
             // initialize the components (controls) of the window
             this.InitializeComponent();
 
 
             NetworkConfigFile f = new NetworkConfigFile("network.conf");
-            UdpPort = f.Port; ;
+            UdpPort = f.Port;
+            JointsConfidenceWeight = f.JointConfidenceWeight;
             udpListener = new UdpListener(int.Parse(UdpPort) + 1);
             udpListener.udpRestart();
 
@@ -494,7 +500,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     this.drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
 
 
-                    BodiesMessage message = new BodiesMessage(bodiesToSend.ToArray());
+                    BodiesMessage message = new BodiesMessage(bodiesToSend.ToArray(), JointsConfidenceWeight);
                     udp.send(message.Message);
                 }
             }
