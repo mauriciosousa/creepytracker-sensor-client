@@ -24,8 +24,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             Microsoft.Kinect.JointType.AnkleRight
         };
 
-        public Skeleton(Microsoft.Kinect.Body body)
+        private Dictionary<string, int> JointsConfidenceWeight;
+
+        public Skeleton(Microsoft.Kinect.Body body, Dictionary<string, int> jointsConfidenceWeight)
         {
+            this.JointsConfidenceWeight = jointsConfidenceWeight;
 
             Message = ""
             + BodyPropertiesTypes.UID.ToString() + MessageSeparators.SET + body.TrackingId
@@ -51,11 +54,20 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 if (BodyConfidenceAcceptedJoints.Contains(j.JointType) && j.TrackingState == Microsoft.Kinect.TrackingState.Tracked)
                 {
-                    if (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)
-                        confidence += 3;
+                    //    if (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)
+                    //        confidence += 3;
+                    //    else
+                    //        confidence += 1;
+
+                    if (JointsConfidenceWeight.ContainsKey(j.JointType.ToString()))
+                    {
+                        confidence += JointsConfidenceWeight[j.JointType.ToString()];
+                    }
                     else
                         confidence += 1;
                 }
+
+                Console.WriteLine(confidence);
             }
             return confidence;
         }
