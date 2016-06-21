@@ -40,7 +40,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
             foreach (Microsoft.Kinect.JointType j in Enum.GetValues(typeof(Microsoft.Kinect.JointType)))
             {
-                Message += "" + MessageSeparators.L2 + j.ToString() + MessageSeparators.SET + convertVectorToStringRPC(body.Joints[j].Position);
+                Message += "" + MessageSeparators.L2 + j.ToString() + MessageSeparators.SET + ConvertVectorToStringRpc(body.Joints[j].Position);
             }
         }
 
@@ -75,7 +75,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             return confidence;
         }
 
-        internal static string convertVectorToStringRPC(Microsoft.Kinect.CameraSpacePoint v)
+        internal static string ConvertVectorToStringRpc(Microsoft.Kinect.CameraSpacePoint v)
         {
             return "" + Math.Round(v.X, 3) + MessageSeparators.L3 + Math.Round(v.Y, 3) + MessageSeparators.L3 + Math.Round(v.Z, 3);
         }
