@@ -75,6 +75,21 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             List<CloudMessage> todelete = new List<CloudMessage>();
             foreach (CloudMessage cm in PendingRequests)
             {
+                if (cm.mode == 2)
+                {
+                
+                    foreach (CloudMessage cm2 in PendingRequests)
+                    {
+                        if (cm.replyIPAddress.ToString() == cm2.replyIPAddress.ToString() &&
+                            cm.port == cm2.port)
+                            todelete.Add(cm2);
+                    }
+                    continue;
+                }
+                if (todelete.Contains(cm))
+                {
+                    continue;
+                }
                 string[] messageBlocks = cloudInfo.Split(MessageSeparators.L2);
                 string msg = "";
                 for (int i = 0; i < messageBlocks.Length;i++)
@@ -86,7 +101,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         IPEndPoint ep = new IPEndPoint(cm.replyIPAddress,cm.port);
                         try{
                             _udpClient.Send(data, data.Length, ep);
-                            todelete.Add(cm);
+                            if (cm.mode== 0) { 
+                                todelete.Add(cm);
+                            }
                             msg = "";
                         }
                         catch (Exception e)

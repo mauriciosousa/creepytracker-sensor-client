@@ -600,7 +600,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 {
                     StringBuilder sb = new StringBuilder();
                     int len = 0;
-               
+
+                    int step = int.Parse(samplingTextBox.Text);
                     this.coordinateMapper.MapDepthFrameToColorSpace(this.depthFrameData, this.colorPoints);
                     this.coordinateMapper.MapDepthFrameToCameraSpace(this.depthFrameData, this.cameraPoints);
                     
@@ -613,10 +614,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             // calculate index into depth array
                             int depthIndex = (y * depthWidth) + x;
 
-                             byte player = this.bodyIndexFrameData[depthIndex];
-
+                            byte player = this.bodyIndexFrameData[depthIndex];
+                            bool? c = onlyPlayers.IsChecked;
+                            bool val = c != null ? (bool)c : false;
                                 // if we're tracking a player for the current pixel, sets its color and alpha to full
-                             if (player != 0xff)
+                             if (!val || player != 0xff)
                              {
 
                                  CameraSpacePoint p = this.cameraPoints[depthIndex];
