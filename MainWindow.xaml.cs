@@ -261,10 +261,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             // populate body colors, one for each BodyIndex
             this.bodyColors = new List<Pen>();
 
-            this.bodyColors.Add(new Pen(Brushes.Red, 6));
+            this.bodyColors.Add(new Pen(Brushes.Red,    6));
             this.bodyColors.Add(new Pen(Brushes.Orange, 6));
-            this.bodyColors.Add(new Pen(Brushes.Green, 6));
-            this.bodyColors.Add(new Pen(Brushes.Blue, 6));
+            this.bodyColors.Add(new Pen(Brushes.Green,  6));
+            this.bodyColors.Add(new Pen(Brushes.Blue,   6));
             this.bodyColors.Add(new Pen(Brushes.Indigo, 6));
             this.bodyColors.Add(new Pen(Brushes.Violet, 6));
 
@@ -489,7 +489,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                             this.DrawBody(joints, jointPoints, dc, drawPen);
 
-                            this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
+                            this.DrawHand(body.HandLeftState,  jointPoints[JointType.HandLeft],  dc);
                             this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
 
                             
@@ -720,7 +720,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         {
             Joint joint0 = joints[jointType0];
             Joint joint1 = joints[jointType1];
-
+            
             // If we can't find either of these joints, exit
             if (joint0.TrackingState == TrackingState.NotTracked ||
                 joint1.TrackingState == TrackingState.NotTracked)
