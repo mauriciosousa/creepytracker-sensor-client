@@ -178,8 +178,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// </summary>
         public MainWindow()
         {
-            
-
             // one sensor is currently supported
             this.kinectSensor = KinectSensor.GetDefault();
 
