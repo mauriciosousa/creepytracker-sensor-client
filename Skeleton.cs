@@ -21,7 +21,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             Microsoft.Kinect.JointType.HandRight,
             Microsoft.Kinect.JointType.HipRight,
             Microsoft.Kinect.JointType.KneeRight,
-            Microsoft.Kinect.JointType.AnkleRight
+            Microsoft.Kinect.JointType.AnkleRight,
+            Microsoft.Kinect.JointType.SpineMid
         };
 
         private Dictionary<string, int> JointsConfidenceWeight;
