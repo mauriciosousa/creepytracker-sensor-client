@@ -10,19 +10,23 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private List<Microsoft.Kinect.JointType> BodyConfidenceAcceptedJoints = new List<Microsoft.Kinect.JointType>()
         {
             Microsoft.Kinect.JointType.Head,
+            
             Microsoft.Kinect.JointType.ShoulderLeft,
             Microsoft.Kinect.JointType.ElbowLeft,
             Microsoft.Kinect.JointType.HandLeft,
             Microsoft.Kinect.JointType.HipLeft,
             Microsoft.Kinect.JointType.KneeLeft,
             Microsoft.Kinect.JointType.AnkleLeft,
+            
             Microsoft.Kinect.JointType.ShoulderRight,
             Microsoft.Kinect.JointType.ElbowRight,
             Microsoft.Kinect.JointType.HandRight,
             Microsoft.Kinect.JointType.HipRight,
             Microsoft.Kinect.JointType.KneeRight,
             Microsoft.Kinect.JointType.AnkleRight,
-            Microsoft.Kinect.JointType.SpineMid
+            
+            Microsoft.Kinect.JointType.SpineMid,
+            Microsoft.Kinect.JointType.SpineShoulder
         };
 
         private Dictionary<string, int> JointsConfidenceWeight;
