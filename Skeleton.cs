@@ -22,7 +22,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             Microsoft.Kinect.JointType.HandRight,
             Microsoft.Kinect.JointType.HipRight,
             Microsoft.Kinect.JointType.KneeRight,
-            Microsoft.Kinect.JointType.AnkleRight
+            Microsoft.Kinect.JointType.AnkleRight,
+
         };
 
         //private  List<TrackingState> BodyTrackingStateJoints = new List<TrackingState>()
@@ -51,6 +52,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             + MessageSeparators.L2 + BodyPropertiesTypes.HandLeftConfidence.ToString()  + MessageSeparators.SET + body.HandLeftConfidence
             + MessageSeparators.L2 + BodyPropertiesTypes.HandRightState.ToString()      + MessageSeparators.SET + body.HandRightState
             + MessageSeparators.L2 + BodyPropertiesTypes.HandRightConfidence.ToString() + MessageSeparators.SET + body.HandRightConfidence;
+
+
+          
             
             foreach (Microsoft.Kinect.JointType j in Enum.GetValues(typeof(Microsoft.Kinect.JointType)))
             {
