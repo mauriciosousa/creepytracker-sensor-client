@@ -1,0 +1,15 @@
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\bin\AnyCPU\Debug\UserTrackerSensorClient.exe.config
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\bin\AnyCPU\Debug\UserTrackerSensorClient.exe
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\bin\AnyCPU\Debug\UserTrackerSensorClient.pdb
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\bin\AnyCPU\Debug\Microsoft.Kinect.dll
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\bin\AnyCPU\Debug\Microsoft.Kinect.xml
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient.csprojResolveAssemblyReference.cache
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\MainWindow.baml
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\MainWindow.g.cs
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\App.g.cs
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient_MarkupCompile.cache
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient.g.resources
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\Microsoft.Samples.Kinect.BodyBasics.Properties.Resources.resources
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient.csproj.GenerateResource.Cache
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient.exe
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient.pdb

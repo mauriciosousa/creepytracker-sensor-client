@@ -1,0 +1,1 @@
+C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\bin\AnyCPU\Release\UserTrackerSensorClient.exe.config
