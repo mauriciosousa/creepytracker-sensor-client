@@ -70,12 +70,28 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private void AddTrackingStateToMessage()
         {
+            Message += MessageSeparators.L4;
             foreach (var joint in Enum.GetValues(typeof(Microsoft.Kinect.JointType)))
             {
-                Message += MessageSeparators.L2 + "Tracking" + joint.ToString() + MessageSeparators.SET +
-                           BodyTrackingStateJoints[(Microsoft.Kinect.JointType) joint];
+                Message += "Tracking" + joint.ToString() + MessageSeparators.SET +
+                           BodyTrackingStateJoints[(Microsoft.Kinect.JointType) joint] + MessageSeparators.L2;
             }
         }
+
+        private void AddImportantTrackingStateToMessage()
+        {
+            Message += MessageSeparators.L4;
+            Message += Microsoft.Kinect.JointType.KneeRight + MessageSeparators.SET + BodyTrackingStateJoints[JointType.KneeRight].ToString() +
+                       MessageSeparators.L2 +
+                       Microsoft.Kinect.JointType.KneeLeft  + MessageSeparators.SET + BodyTrackingStateJoints[JointType.KneeLeft].ToString();
+
+            //foreach (var joint in Enum.GetValues(typeof(Microsoft.Kinect.JointType)))
+            //{
+            //    Message += "Tracking" + joint.ToString() + MessageSeparators.SET +
+            //               BodyTrackingStateJoints[(Microsoft.Kinect.JointType)joint] + MessageSeparators.L2 ;
+            //}
+        }
+
 
         private void SetTrackingStateJoints(Body body)
         {
@@ -124,7 +140,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
 
 
-             BodyTrackingStateJoints.Add(body.Joints[JointType.Neck].TrackingState);
+            BodyTrackingStateJoints.Add(body.Joints[JointType.Neck].TrackingState);
             BodyTrackingStateJoints.Add(body.Joints[JointType.SpineShoulder].TrackingState);
             BodyTrackingStateJoints.Add(body.Joints[JointType.SpineBase].TrackingState);
             BodyTrackingStateJoints.Add(body.Joints[JointType.SpineMid].TrackingState);

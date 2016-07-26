@@ -12,6 +12,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         public const char L1 = '#'; // top level separator -> bodies
         public const char L2 = '/'; // -> body attributes
         public const char L3 = ':'; // -> 3D values
+        public const char L4 = '?'; // -> Extra
         public const char SET = '=';
     }
 
