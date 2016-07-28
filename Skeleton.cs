@@ -64,13 +64,13 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 Message += "" + MessageSeparators.L2 + j.ToString() + MessageSeparators.SET + ConvertVectorToStringRpc(body.Joints[j].Position);
             }
-
-           // AddTrackingStateToMessage();
+            AddImportantTrackingStateToMessage();
+            // AddTrackingStateToMessage();
         }
 
         private void AddTrackingStateToMessage()
         {
-            Message += MessageSeparators.L4;
+            Message += MessageSeparators.L2;
             foreach (var joint in Enum.GetValues(typeof(Microsoft.Kinect.JointType)))
             {
                 Message += "Tracking" + joint.ToString() + MessageSeparators.SET +
@@ -80,18 +80,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private void AddImportantTrackingStateToMessage()
         {
-            Message += MessageSeparators.L4;
-            Message += Microsoft.Kinect.JointType.KneeRight + MessageSeparators.SET + BodyTrackingStateJoints[JointType.KneeRight].ToString() +
+            Message += MessageSeparators.L2 +
+                       "Tracking_" + Microsoft.Kinect.JointType.KneeRight.ToString() + MessageSeparators.SET + BodyTrackingStateJoints[JointType.KneeRight].ToString() + 
                        MessageSeparators.L2 +
-                       Microsoft.Kinect.JointType.KneeLeft  + MessageSeparators.SET + BodyTrackingStateJoints[JointType.KneeLeft].ToString();
-
-            //foreach (var joint in Enum.GetValues(typeof(Microsoft.Kinect.JointType)))
-            //{
-            //    Message += "Tracking" + joint.ToString() + MessageSeparators.SET +
-            //               BodyTrackingStateJoints[(Microsoft.Kinect.JointType)joint] + MessageSeparators.L2 ;
-            //}
+                       "Tracking_" + Microsoft.Kinect.JointType.KneeLeft.ToString()  + MessageSeparators.SET + BodyTrackingStateJoints[JointType.KneeLeft].ToString();    
         }
-
 
         private void SetTrackingStateJoints(Body body)
         {
