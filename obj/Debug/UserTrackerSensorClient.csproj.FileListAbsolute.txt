@@ -13,3 +13,5 @@ C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\Microsoft.
 C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient.csproj.GenerateResource.Cache
 C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient.exe
 C:\Users\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient.pdb
+D:\venda\Documents\GitHub\creepytracker-sensor-client\bin\AnyCPU\Debug\UserTrackerSensorClient.exe.config
+D:\venda\Documents\GitHub\creepytracker-sensor-client\obj\Debug\UserTrackerSensorClient.pdb
