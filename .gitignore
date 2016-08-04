@@ -2,6 +2,7 @@
 *.bin
 *.exe
 *.sln
+bin/
 Temp/
 Library/
 obj/
