@@ -499,7 +499,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
 
                     BodiesMessage message = new BodiesMessage(bodiesToSend.ToArray(), JointsConfidenceWeight);
-                    udp.send(message.Message);
+                    udp.Send(message.Message);
                 }
             }
         }

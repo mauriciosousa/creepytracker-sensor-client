@@ -43,7 +43,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             catch (Exception e) { }
         }
 
-        public void send(string line)
+        public void Send(string line)
         {
             if (_streaming)
             {

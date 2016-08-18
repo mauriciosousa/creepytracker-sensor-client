@@ -64,7 +64,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 Message += "" + MessageSeparators.L2 + j.ToString() + MessageSeparators.SET + ConvertVectorToStringRpc(body.Joints[j].Position);
             }
-            AddImportantTrackingStateToMessage();
+
+
+            //  AddImportantTrackingStateToMessage();
+            
+            
+            
             // AddTrackingStateToMessage();
         }
 

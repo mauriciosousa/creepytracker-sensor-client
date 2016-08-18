@@ -31,16 +31,16 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     {
         private object _bodies;
 
-        public BodiesMessage(Microsoft.Kinect.Body   [] listOfBodies, Dictionary<string, int> jointsConfidenceWeight)
+        public BodiesMessage(Microsoft.Kinect.Body[] listOfBodies, Dictionary<string, int> jointsConfidenceWeight)
         {
             Message = "BodiesMessage" + MessageSeparators.L0 + Environment.MachineName;
             if (listOfBodies.Length == 0) Message += "" + MessageSeparators.L1 + "None";
             else
             {
-                foreach (Microsoft.Kinect.Body b in listOfBodies)
+                foreach (var b in listOfBodies)
                 {
                     
-                    Skeleton newBody = new Skeleton(b, jointsConfidenceWeight);
+                    var newBody = new Skeleton(b, jointsConfidenceWeight);
                     Message += "" + MessageSeparators.L1 + newBody.Message;
                 }
             }
