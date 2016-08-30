@@ -26,10 +26,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         public UdpBroadcast(int port, int sendRate = 100)
         {
             _lastSent = DateTime.Now;
-            reset(port, sendRate);
+            Reset(port, sendRate);
         }
 
-        public void reset(int port, int sendRate = 100)
+        public void Reset(int port, int sendRate = 100)
         {
             _sendRate = sendRate;
             try

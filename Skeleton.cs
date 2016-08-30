@@ -58,8 +58,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             + MessageSeparators.L2 + BodyPropertiesTypes.HandRightConfidence.ToString() + MessageSeparators.SET + body.HandRightConfidence;
 
 
-          
-            
+            //body.HandLeftState =HandState.Closed;
+            //body.HandLeftState = HandState.Open;
+            //body.HandLeftState = HandState.Unknown;
+
             foreach (Microsoft.Kinect.JointType j in Enum.GetValues(typeof(Microsoft.Kinect.JointType)))
             {
                 Message += "" + MessageSeparators.L2 + j.ToString() + MessageSeparators.SET + ConvertVectorToStringRpc(body.Joints[j].Position);

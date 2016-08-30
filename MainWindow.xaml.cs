@@ -827,7 +827,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private void resetBroadcast()
         {
             UdpPort = portTextBox.Text;
-            udp.reset(int.Parse(UdpPort));
+            udp.Reset(int.Parse(UdpPort));
             udpListener.Port = int.Parse(UdpPort)+1;
             udpListener.udpRestart();
             expander.IsExpanded = false;
