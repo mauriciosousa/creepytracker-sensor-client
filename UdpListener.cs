@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Linq;
 using System.Text;
+using System.Collections; // Tomas: To include ArrayList
 using Microsoft.Kinect;
 
 namespace Microsoft.Samples.Kinect.BodyBasics
@@ -17,6 +18,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private KinectSensor _kinectSensor;
         private int _port;
         uint messageCount;
+        int limit; // TMA: To keep track of the number of bytes sent.
+        byte[] final_bytes; // TMA: To point to the bytes that will be send.
         public List<CloudMessage> PendingRequests;
         public int Port
         {
@@ -58,7 +61,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 string[] msg = request.Split(MessageSeparators.L0);
                 if (msg[0] == "CloudMessage")
                 {
-                   PendingRequests.Add(new CloudMessage(msg[1]));
+                    PendingRequests.Add(new CloudMessage(msg[1]));
                 }
                 _udpClient.BeginReceive(new AsyncCallback(this.ReceiveCallback), null);
             }
@@ -69,15 +72,14 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             
         }
 
-        public void processRequests(string cloudInfo)
+        public void processRequests(ArrayList byte_list)
         {
-            
             List<CloudMessage> todelete = new List<CloudMessage>();
-            foreach (CloudMessage cm in PendingRequests)
+            for (int i = 0; i < PendingRequests.Count; i++)
             {
+                CloudMessage cm = PendingRequests.ElementAt(i);
                 if (cm.mode == 2)
                 {
-                
                     foreach (CloudMessage cm2 in PendingRequests)
                     {
                         if (cm.replyIPAddress.ToString() == cm2.replyIPAddress.ToString() &&
@@ -90,28 +92,42 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 {
                     continue;
                 }
-                string[] messageBlocks = cloudInfo.Split(MessageSeparators.L2);
-                string msg = "";
-                for (int i = 0; i < messageBlocks.Length;i++)
+                // TMA: Get the bytes from the ArrayList
+                byte[] points_bytes = byte_list.OfType<byte>().ToArray();
+                // This is the heading for every package.
+                string msg = "CloudMessage" + MessageSeparators.L0 + Environment.MachineName + MessageSeparators.L1 + messageCount + MessageSeparators.L1; // String to tag the sensor
+                // Get the heading bytes.
+                byte[] msg_bytes = Encoding.ASCII.GetBytes(msg); // Convert to bytes
+
+                for (limit = 0; limit < points_bytes.Length; limit += 8000) // Each packet has 500 points (16 * 500 = 8000 bytes)
                 {
-                     if(msg.Length + messageBlocks[i].Length > 1024 || i == messageBlocks.Length - 1){
-                         msg = CloudMessage.createMessage(msg,messageCount);
-                         byte[] data = Encoding.UTF8.GetBytes(msg);
-             
-                        IPEndPoint ep = new IPEndPoint(cm.replyIPAddress,cm.port);
-                        try{
-                            _udpClient.Send(data, data.Length, ep);
-                            if (cm.mode== 0) { 
-                                todelete.Add(cm);
-                            }
-                            msg = "";
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Error sending data to " + cm.replyIPAddress.ToString() + " " + e.Message);
-                        }
+                    if (limit + 8000 > points_bytes.Length) // If there are less points than 500
+                    {
+                        final_bytes = new byte[msg_bytes.Length + points_bytes.Length - limit];
+                        Array.Copy(msg_bytes, 0, final_bytes, 0, msg_bytes.Length);
+                        Array.Copy(points_bytes, limit, final_bytes, msg_bytes.Length, points_bytes.Length - limit);
                     }
-                    msg += messageBlocks[i]+MessageSeparators.L2;
+                    else // If there are more or 500 points to send
+                    {
+                        final_bytes = new byte[msg_bytes.Length + 8000];
+                        Array.Copy(msg_bytes, 0, final_bytes, 0, msg_bytes.Length);
+                        Array.Copy(points_bytes, limit, final_bytes, msg_bytes.Length, 8000);
+                    }
+
+                    IPEndPoint ep = new IPEndPoint(cm.replyIPAddress, cm.port);
+                    try
+                    {
+                        _udpClient.Send(final_bytes, final_bytes.Length, ep); // Send the bytes
+                        if (cm.mode == 0)
+                        {
+                            todelete.Add(cm);
+                        }
+                        msg = "";
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error sending data to " + cm.replyIPAddress.ToString() + " " + e.Message);
+                    }
                 }
             }
             foreach (CloudMessage cm in todelete)
