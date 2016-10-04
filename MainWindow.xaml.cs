@@ -17,6 +17,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     using System.Windows.Media.Imaging;
     using System.Text;
     using Microsoft.Kinect;
+    using System.Collections; // TMA: To include ArrayList
 
     /// <summary>
     /// Interaction logic for MainWindow
@@ -173,6 +174,14 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private Dictionary<string, int> JointsConfidenceWeight;
 
         private int step = 1;
+
+        private ArrayList points = new ArrayList(); // TMA: To store the bytes
+        private byte[] xv, yv, zv; // TMA: To store the 4 bytes of float x, y and z
+        private List<Vector4> head_pos = new List<Vector4>(); // TMA: To keep track of the bodies' heads
+        private List<Vector4> hand_pos = new List<Vector4>(); // TMA: To keep track of the bodies' hands
+        private float radius_head = 0.30f; // TMA: Radius around head where the sampling value is lower than the input
+        private float radius_hand = 0.15f; // TMA: Radius around hands where the sampling value is lower than the input
+
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -507,7 +516,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-           
+            points.Clear(); // TMA: Clean the Array List at each frame
             if (udpListener.PendingRequests.Count > 0)
             {
                 
@@ -588,21 +597,56 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             }
                         }
                     }
-          
                 }
 
 
 
                 // we got all frames
-                if (multiSourceFrameProcessed && depthFrameProcessed && colorFrameProcessed && bodyIndexFrameProcessed )
+                if (multiSourceFrameProcessed && depthFrameProcessed && colorFrameProcessed && bodyIndexFrameProcessed)
                 {
-                    StringBuilder sb = new StringBuilder();
-                    int len = 0;
-
                     int step = int.Parse(samplingTextBox.Text);
+                    int oldstep = step; // TMA: Save the input sampling. If you want detail, after you get out of the detail zone update the step with this value.
                     this.coordinateMapper.MapDepthFrameToColorSpace(this.depthFrameData, this.colorPoints);
                     this.coordinateMapper.MapDepthFrameToCameraSpace(this.depthFrameData, this.cameraPoints);
-                    
+
+                    head_pos.Clear(); // TMA: Clear all the heads from previous frame.
+                    hand_pos.Clear(); // TMA: Clear all the hands from previous frame.
+                    bool? a = none.IsChecked; // TMA: Is it 'None'?
+                    bool val_a = a != null ? (bool)a : false;
+                    bool val_b = false, val_c = false;
+                    if (!val_a) // TMA: If it isn't:
+                    {
+                        bool? b = heads.IsChecked; //TMA: Is it 'Heads' ?
+                        val_b = b != null ? (bool)b : false;
+                        val_c = !val_b; //TMA: ts is 'Heads', so it can't be 'Hands'. It goes both ways.
+
+                        foreach (Body body in bodies)
+                        {
+                            if (body.TrackingId != 0)
+                            {
+                                foreach (Joint j in body.Joints.Values)
+                                {
+                                    if (val_b && j.JointType == Microsoft.Kinect.JointType.Head) // TMA: If it's 'Heads'
+                                    {
+                                        Vector4 newHead = new Vector4();
+                                        newHead.X = j.Position.X;
+                                        newHead.Y = j.Position.Y;
+                                        newHead.Z = j.Position.Z;
+                                        head_pos.Add(newHead); // TMA: Store in the heads vector
+                                    }
+                                    else if (val_c && (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)) // TMA: If it's 'Hands'
+                                    {
+                                        Vector4 newHand = new Vector4();
+                                        newHand.X = j.Position.X;
+                                        newHand.Y = j.Position.Y;
+                                        newHand.Z = j.Position.Z;
+                                        hand_pos.Add(newHand); // TMA: Store in the hands vector
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // loop over each row and column of the depth
                     for (int y = 0; y < depthHeight; y += step)
                     {
@@ -645,28 +689,85 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                                  if (!(Double.IsInfinity(p.X)) && !(Double.IsInfinity(p.Y)) && !(Double.IsInfinity(p.Z)))
                                  {
-                                     sb.Append(String.Format(CultureInfo.InvariantCulture, "{0}" + MessageSeparators.L3 +
-                                                                                           "{1}" + MessageSeparators.L3 +
-                                                                                           "{2}" + MessageSeparators.L3 +
-                                                                                           "{3}" + MessageSeparators.L3 +
-                                                                                           "{4}" + MessageSeparators.L3 +
-                                                                                           "{5}" + MessageSeparators.L2, p.X, p.Y, p.Z, r, g, b));
-                                     len++;
-                                 }
-                             }
+
+                                    // TMA: Convert the floats to bytes.
+                                    xv = BitConverter.GetBytes(p.X); // x
+                                    yv = BitConverter.GetBytes(p.Y); // y
+                                    zv = BitConverter.GetBytes(p.Z); // z
+                                    // Add the (x,y,z,r,g,b,res) information to the arraylist.
+                                    // This last byte marks the point has being a High Resolution one (value = 1) or Low Resolution (value = 0).
+                                    // This is important in the tracker. Look there in CloudMessage.cs.
+                                    // A point will have 16 bytes:
+                                    // --- 4 bytes for each component of (x, y, z).
+                                    // --- 1 byte per color component.
+                                    // --- 1 byte per detail bool.
+                                    foreach (byte bt in xv) points.Add(bt); // x
+                                    foreach (byte bt in yv) points.Add(bt); // y
+                                    foreach (byte bt in zv) points.Add(bt); // z
+                                    points.Add(r); // r
+                                    points.Add(g); // g
+                                    points.Add(b); // b
+
+
+                                    // TMA: Update the step if looking for detail
+                                    if (val_b && checkHead(p.X, p.Y, p.Z)) // Check if the point belongs to the head detail zone
+                                    {
+                                        step = 2;
+                                        points.Add((byte)1); // Mark as a HighRes point
+                                    }
+                                    else if(val_c && checkHands(p.X, p.Y, p.Z)) // Check if the point belongs to any hands detail zone
+                                    {
+                                        step = 2;
+                                        points.Add((byte)1); // Mark as a HighRes point
+                                    }
+                                    else
+                                    {
+                                        step = oldstep;
+                                        points.Add((byte)0); // Mark as a LowRes point
+                                    }
+                                }
+                            }
                         }
                     }
-
-                    udpListener.processRequests(sb.ToString());
-                    
+          
+                    udpListener.processRequests(points);
                 }
             }
-          
+        }
+
+        /// <summary>
+        /// Checks if a point belongs inside a sphere with center in any head with euclidian distance.
+        /// </summary>
+        /// <param name="x">x coordinate</param>
+        /// <param name="y">y coordinate</param>
+        /// <param name="z">z coordinate</param>
+        private bool checkHead(float x, float y, float z)
+        {
+            foreach (Vector4 head in head_pos)
+            {
+                if (Math.Sqrt(Math.Pow(head.X - x, 2) + Math.Pow(head.Y - y, 2) + Math.Pow(head.Z - z, 2)) <= radius_head)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if a point belongs inside a sphere with center in any hand with euclidian distance.
+        /// </summary>
+        /// <param name="x">x coordinate</param>
+        /// <param name="y">y coordinate</param>
+        /// <param name="z">z coordinate</param>
+        private bool checkHands(float x, float y, float z)
+        {
+            foreach (Vector4 hand in hand_pos)
+            {
+                if (Math.Sqrt(Math.Pow(hand.X - x, 2) + Math.Pow(hand.Y - y, 2) + Math.Pow(hand.Z - z, 2)) <= radius_hand)
+                    return true;
+            }
+            return false;
         }
 
 
-
-     
         /// <summary>
         /// Draws a body
         /// </summary>

@@ -50,10 +50,14 @@
 
                 <CheckBox x:Name="onlyPlayers" Content="Only players" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="24.4,-9,0,0"/>
 
+                <RadioButton x:Name="none" Content="None" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="120.4,-9,0,0"/>
+                <RadioButton x:Name="hands" Content="Hands" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="120.4,7,0,0"/>
+                <RadioButton x:Name="heads" Content="Heads" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="120.4,23,0,0"/>
+                
                 <Label Grid.Column="0" Content="Udp port: " HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <TextBox x:Name="portTextBox" Grid.Column="1"  HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="50" KeyDown="portTextBox_KeyDown"/>
 
-                <Button x:Name="button" Grid.Column="2"  Content="Reset" HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Center" Width="75" Click="button_Click"/>
+                <Button x:Name="button" Grid.Column="2"  Content="Reset" HorizontalAlignment="Right" Margin="0,0,-5,0" VerticalAlignment="Center" Width="75" Click="button_Click"/>
                 <Label Content="Sampling:" Grid.Column="2" HorizontalAlignment="Left" Margin="18.4,7,0,-6.6" VerticalAlignment="Top"/>
 
 
