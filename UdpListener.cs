@@ -78,12 +78,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             for (int i = 0; i < PendingRequests.Count; i++)
             {
                 CloudMessage cm = PendingRequests.ElementAt(i);
-                if (cm.mode == 2)
+                if (cm.Mode == 2)
                 {
                     foreach (CloudMessage cm2 in PendingRequests)
                     {
-                        if (cm.replyIPAddress.ToString() == cm2.replyIPAddress.ToString() &&
-                            cm.port == cm2.port)
+                        if (cm.ReplyIpAddress.ToString() == cm2.ReplyIpAddress.ToString() &&
+                            cm.Port == cm2.Port)
                             todelete.Add(cm2);
                     }
                     continue;
@@ -114,11 +114,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         Array.Copy(points_bytes, limit, final_bytes, msg_bytes.Length, 8000);
                     }
 
-                    IPEndPoint ep = new IPEndPoint(cm.replyIPAddress, cm.port);
+                    IPEndPoint ep = new IPEndPoint(cm.ReplyIpAddress, cm.Port);
                     try
                     {
                         _udpClient.Send(final_bytes, final_bytes.Length, ep); // Send the bytes
-                        if (cm.mode == 0)
+                        if (cm.Mode == 0)
                         {
                             todelete.Add(cm);
                         }
@@ -126,7 +126,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("Error sending data to " + cm.replyIPAddress.ToString() + " " + e.Message);
+                        Console.WriteLine("Error sending data to " + cm.ReplyIpAddress.ToString() + " " + e.Message);
                     }
                 }
             }
