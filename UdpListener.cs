@@ -12,15 +12,21 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 {
     public class UdpListener
     {
+        public List<CloudMessage> PendingRequests;
 
         private UdpClient _udpClient = null;
         private IPEndPoint _anyIP;
         private KinectSensor _kinectSensor;
+
         private int _port;
+
         uint messageCount;
+
         int limit; // TMA: To keep track of the number of bytes sent.
+
         byte[] final_bytes; // TMA: To point to the bytes that will be send.
-        public List<CloudMessage> PendingRequests;
+
+
         public int Port
         {
             get { return _port; }
@@ -33,7 +39,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             _port = port;
             PendingRequests = new List<CloudMessage>();
         }
-        public void udpRestart()
+
+        public void UdpRestart()
         {
             if (_udpClient != null)
             {

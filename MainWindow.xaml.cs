@@ -306,7 +306,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             UdpPort = f.Port;
             JointsConfidenceWeight = f.JointConfidenceWeight;
             udpListener = new UdpListener(int.Parse(UdpPort) + 1);
-            udpListener.udpRestart();
+            udpListener.UdpRestart();
 
 
         }
@@ -930,7 +930,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             UdpPort = portTextBox.Text;
             udp.Reset(int.Parse(UdpPort));
             udpListener.Port = int.Parse(UdpPort)+1;
-            udpListener.udpRestart();
+            udpListener.UdpRestart();
             expander.IsExpanded = false;
             
         }

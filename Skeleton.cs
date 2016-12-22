@@ -7,8 +7,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
     internal class Skeleton
     {
-
-        private List<Microsoft.Kinect.JointType> BodyConfidenceAcceptedJoints = new List<Microsoft.Kinect.JointType>()
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local
+        private List<Microsoft.Kinect.JointType> _bodyConfidenceAcceptedJoints = new List<Microsoft.Kinect.JointType>()
         {
             Microsoft.Kinect.JointType.Head,
             
@@ -40,14 +40,14 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private Dictionary<JointType, TrackingState> BodyTrackingStateJoints = new Dictionary<JointType,TrackingState>();
 
 
-        private Dictionary<string, int> JointsConfidenceWeight;
+        private Dictionary<string, int> _jointsConfidenceWeight;
 
         public Skeleton(Microsoft.Kinect.Body body, Dictionary<string, int> jointsConfidenceWeight)
         {
             SetTrackingStateJoints(body);
 
 
-            this.JointsConfidenceWeight = jointsConfidenceWeight;
+            this._jointsConfidenceWeight = jointsConfidenceWeight;
 
             Message = ""
             + BodyPropertiesTypes.UID.ToString() + MessageSeparators.SET + body.TrackingId
@@ -66,12 +66,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 Message += "" + MessageSeparators.L2 + j.ToString() + MessageSeparators.SET + ConvertVectorToStringRpc(body.Joints[j].Position);
             }
-
-
+            
             //  AddImportantTrackingStateToMessage();
-            
-            
-            
             // AddTrackingStateToMessage();
         }
 
@@ -101,85 +97,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             }
         }
 
-        /*
-              JointType.Head
-              JointType.Neck
-              JointType.SpineShoulder
-              JointType.SpineMid
-              JointType.SpineBase
-
-              JointType.ShoulderRight
-              JointType.ShoulderLeft
-
-              JointType.HipRight
-              JointType.HipLeft
-
-              JointType.ElbowRight
-              JointType.ElbowLeft
-              
-              JointType.WristRight
-              JointType.WristLeft
-
-              JointType.HandRight
-              JointType.HandLeft
-
-              JointType.HandTipRight
-              JointType.HandTipLeft
-
-              JointType.ThumbRight
-              JointType.ThumbLeft
-
-              JointType.KneeRight
-              JointType.KneeLeft
-
-              JointType.AnkleRight
-              JointType.AnkleLeft
-
-              JointType.FootRight          
-              JointType.FootLeft   
-
-
-
-            BodyTrackingStateJoints.Add(body.Joints[JointType.Neck].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.SpineShoulder].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.SpineBase].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.SpineMid].TrackingState);
-            
-            BodyTrackingStateJoints.Add(body.Joints[JointType.ShoulderRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.ShoulderLeft].TrackingState);
-
-            BodyTrackingStateJoints.Add(body.Joints[JointType.ElbowRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.ElbowLeft].TrackingState);
-
-            BodyTrackingStateJoints.Add(body.Joints[JointType.HipRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.HipLeft].TrackingState);
-
-            BodyTrackingStateJoints.Add(body.Joints[JointType.KneeRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.KneeLeft].TrackingState);
-            //-----------------------------------------------------------------------------
-            BodyTrackingStateJoints.Add(body.Joints[JointType.ElbowRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.ElbowLeft].TrackingState);
-
-            BodyTrackingStateJoints.Add(body.Joints[JointType.WristRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.WristLeft].TrackingState);
-
-            BodyTrackingStateJoints.Add(body.Joints[JointType.HandRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.HandLeft].TrackingState);
-
-            BodyTrackingStateJoints.Add(body.Joints[JointType.HandTipRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.HandTipLeft].TrackingState);
-           
-            BodyTrackingStateJoints.Add(body.Joints[JointType.AnkleRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.AnkleLeft].TrackingState);
-
-            BodyTrackingStateJoints.Add(body.Joints[JointType.FootRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.FootLeft].TrackingState);
-
-            BodyTrackingStateJoints.Add(body.Joints[JointType.ThumbRight].TrackingState);
-            BodyTrackingStateJoints.Add(body.Joints[JointType.ThumbLeft].TrackingState);
-           */
-        
-        
         public string Message { get; internal set; }   
 
         private int BodyConfidence(Microsoft.Kinect.Body body)
@@ -188,7 +105,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
             foreach (Microsoft.Kinect.Joint j in body.Joints.Values)
             {
-                if (BodyConfidenceAcceptedJoints.Contains(j.JointType) && j.TrackingState == Microsoft.Kinect.TrackingState.Tracked)
+                if (_bodyConfidenceAcceptedJoints.Contains(j.JointType) && j.TrackingState == Microsoft.Kinect.TrackingState.Tracked)
                 {
                     
                     //if (j.JointType == Microsoft.Kinect.JointType.KneeLeft || j.JointType == Microsoft.Kinect.JointType.KneeRight || j.JointType == Microsoft.Kinect.JointType.Head || j.JointType == Microsoft.Kinect.JointType.SpineMid)
@@ -199,9 +116,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     //    else
                     //        confidence += 1;
 
-                    if (JointsConfidenceWeight.ContainsKey(j.JointType.ToString()))
+                    if (_jointsConfidenceWeight.ContainsKey(j.JointType.ToString()))
                     {
-                        confidence += JointsConfidenceWeight[j.JointType.ToString()];
+                        confidence += _jointsConfidenceWeight[j.JointType.ToString()];
                     }
 
                     else
@@ -217,3 +134,81 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         }
     }
 }
+/*
+       JointType.Head
+       JointType.Neck
+       JointType.SpineShoulder
+       JointType.SpineMid
+       JointType.SpineBase
+
+       JointType.ShoulderRight
+       JointType.ShoulderLeft
+
+       JointType.HipRight
+       JointType.HipLeft
+
+       JointType.ElbowRight
+       JointType.ElbowLeft
+
+       JointType.WristRight
+       JointType.WristLeft
+
+       JointType.HandRight
+       JointType.HandLeft
+
+       JointType.HandTipRight
+       JointType.HandTipLeft
+
+       JointType.ThumbRight
+       JointType.ThumbLeft
+
+       JointType.KneeRight
+       JointType.KneeLeft
+
+       JointType.AnkleRight
+       JointType.AnkleLeft
+
+       JointType.FootRight          
+       JointType.FootLeft   
+
+
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.Neck].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.SpineShoulder].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.SpineBase].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.SpineMid].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.ShoulderRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.ShoulderLeft].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.ElbowRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.ElbowLeft].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.HipRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.HipLeft].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.KneeRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.KneeLeft].TrackingState);
+     //-----------------------------------------------------------------------------
+     BodyTrackingStateJoints.Add(body.Joints[JointType.ElbowRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.ElbowLeft].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.WristRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.WristLeft].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.HandRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.HandLeft].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.HandTipRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.HandTipLeft].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.AnkleRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.AnkleLeft].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.FootRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.FootLeft].TrackingState);
+
+     BodyTrackingStateJoints.Add(body.Joints[JointType.ThumbRight].TrackingState);
+     BodyTrackingStateJoints.Add(body.Joints[JointType.ThumbLeft].TrackingState);
+*/
+
