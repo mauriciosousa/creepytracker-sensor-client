@@ -50,7 +50,7 @@
 
                 <CheckBox x:Name="onlyPlayers" Content="Only players" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="24.4,-9,0,0"/>
 
-                <RadioButton x:Name="none" Content="None" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="120.4,-9,0,0"/>
+                <RadioButton x:Name="none" Content="None" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="120.4,-9,0,0" IsChecked="True"/>
                 <RadioButton x:Name="hands" Content="Hands" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="120.4,7,0,0"/>
                 <RadioButton x:Name="heads" Content="Heads" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="120.4,23,0,0"/>
                 

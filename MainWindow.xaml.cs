@@ -179,7 +179,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private byte[] xv, yv, zv; // TMA: To store the 4 bytes of float x, y and z
         private List<Vector4> head_pos = new List<Vector4>(); // TMA: To keep track of the bodies' heads
         private List<Vector4> hand_pos = new List<Vector4>(); // TMA: To keep track of the bodies' hands
-        private float radius_head = 0.30f; // TMA: Radius around head where the sampling value is lower than the input
+        private float radius_head = 0.25f; // TMA: Radius around head where the sampling value is lower than the input
         private float radius_hand = 0.15f; // TMA: Radius around hands where the sampling value is lower than the input
 
         /// <summary>
@@ -611,14 +611,15 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                     head_pos.Clear(); // TMA: Clear all the heads from previous frame.
                     hand_pos.Clear(); // TMA: Clear all the hands from previous frame.
+                
                     bool? a = none.IsChecked; // TMA: Is it 'None'?
-                    bool val_a = a != null ? (bool)a : false;
-                    bool val_b = false, val_c = false;
-                    if (!val_a) // TMA: If it isn't:
+                    bool bnone = a != null ? (bool)a : false;
+                    bool bheads = false, bhands = false;
+                    if (!bnone) // TMA: If it isn't:
                     {
                         bool? b = heads.IsChecked; //TMA: Is it 'Heads' ?
-                        val_b = b != null ? (bool)b : false;
-                        val_c = !val_b; //TMA: ts is 'Heads', so it can't be 'Hands'. It goes both ways.
+                        bheads = b != null ? (bool)b : false;
+                        bhands = !bheads; //TMA: ts is 'Heads', so it can't be 'Hands'. It goes both ways.
 
                         foreach (Body body in bodies)
                         {
@@ -626,7 +627,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             {
                                 foreach (Joint j in body.Joints.Values)
                                 {
-                                    if (val_b && j.JointType == Microsoft.Kinect.JointType.Head) // TMA: If it's 'Heads'
+                                    if (bheads && j.JointType == Microsoft.Kinect.JointType.Head) // TMA: If it's 'Heads'
                                     {
                                         Vector4 newHead = new Vector4();
                                         newHead.X = j.Position.X;
@@ -634,7 +635,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                         newHead.Z = j.Position.Z;
                                         head_pos.Add(newHead); // TMA: Store in the heads vector
                                     }
-                                    else if (val_c && (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)) // TMA: If it's 'Hands'
+                                    else if (bhands && (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)) // TMA: If it's 'Hands'
                                     {
                                         Vector4 newHand = new Vector4();
                                         newHand.X = j.Position.X;
@@ -647,10 +648,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         }
                     }
 
+                    int st = bnone ? step : 1;
                     // loop over each row and column of the depth
-                    for (int y = 0; y < depthHeight; y += step)
+                    for (int y = 0; y < depthHeight; y += st)
                     {
-                        for (int x = 0; x < depthWidth; x += step)
+                        for (int x = 0; x < depthWidth; x += st)
                         {
 
                             // calculate index into depth array
@@ -689,52 +691,63 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                                  if (!(Double.IsInfinity(p.X)) && !(Double.IsInfinity(p.Y)) && !(Double.IsInfinity(p.Z)))
                                  {
-
-                                    // TMA: Convert the floats to bytes.
-                                    xv = BitConverter.GetBytes(p.X); // x
-                                    yv = BitConverter.GetBytes(p.Y); // y
-                                    zv = BitConverter.GetBytes(p.Z); // z
-                                    // Add the (x,y,z,r,g,b,res) information to the arraylist.
-                                    // This last byte marks the point has being a High Resolution one (value = 1) or Low Resolution (value = 0).
-                                    // This is important in the tracker. Look there in CloudMessage.cs.
-                                    // A point will have 16 bytes:
-                                    // --- 4 bytes for each component of (x, y, z).
-                                    // --- 1 byte per color component.
-                                    // --- 1 byte per detail bool.
-                                    foreach (byte bt in xv) points.Add(bt); // x
-                                    foreach (byte bt in yv) points.Add(bt); // y
-                                    foreach (byte bt in zv) points.Add(bt); // z
-                                    points.Add(r); // r
-                                    points.Add(g); // g
-                                    points.Add(b); // b
-
-
+                                    bool toadd = false;
+                                    bool hires = false;
                                     // TMA: Update the step if looking for detail
-                                    if (val_b && checkHead(p.X, p.Y, p.Z)) // Check if the point belongs to the head detail zone
+                                    if (bheads && checkHead(p.X, p.Y, p.Z) && checkStep(x, y, step / 2)) // Check if the point belongs to the head detail zone
                                     {
-                                        step = 2;
-                                        points.Add((byte)1); // Mark as a HighRes point
+                                        toadd = true;
+                                        hires = true;
                                     }
-                                    else if(val_c && checkHands(p.X, p.Y, p.Z)) // Check if the point belongs to any hands detail zone
+                                    else if(bhands && checkHands(p.X, p.Y, p.Z) && checkStep(x, y, step / 2)) // Check if the point belongs to any hands detail zone
                                     {
-                                        step = 2;
-                                        points.Add((byte)1); // Mark as a HighRes point
+                                        toadd = true;
+                                        hires = true; 
                                     }
-                                    else
+                                    else if(checkStep(x, y, step))
                                     {
-                                        step = oldstep;
-                                        points.Add((byte)0); // Mark as a LowRes point
+                                        toadd = true;
+                                        hires = false;
+                                    }
+                                    if (toadd) { 
+                                        // TMA: Convert the floats to bytes.
+                                        xv = BitConverter.GetBytes(p.X); // x
+                                        yv = BitConverter.GetBytes(p.Y); // y
+                                        zv = BitConverter.GetBytes(p.Z); // z
+                                        // Add the (x,y,z,r,g,b,res) information to the arraylist.
+                                        // This last byte marks the point has being a High Resolution one (value = 1) or Low Resolution (value = 0).
+                                        // This is important in the tracker. Look there in CloudMessage.cs.
+                                        // A point will have 16 bytes:
+                                        // --- 4 bytes for each component of (x, y, z).
+                                        // --- 1 byte per color component.
+                                        // --- 1 byte per detail bool.
+                                        foreach (byte bt in xv) points.Add(bt); // x
+                                        foreach (byte bt in yv) points.Add(bt); // y
+                                        foreach (byte bt in zv) points.Add(bt); // z
+                                        points.Add(r); // r
+                                        points.Add(g); // g
+                                        points.Add(b); // b
+
+                                        if(hires) points.Add((byte)1); // Mark as a HighRes point
+                                        else points.Add((byte)0); // Mark as a LowRes point
                                     }
                                 }
                             }
                         }
                     }
           
-                    udpListener.processRequests(points);
+                    udpListener.ProcessRequests(points);
                 }
             }
         }
 
+        private bool checkStep(int x, int y, int step)
+        {
+            if (x % step == 0 && y % step == 0)
+                return true;
+            else
+                return false;
+        }
         /// <summary>
         /// Checks if a point belongs inside a sphere with center in any head with euclidian distance.
         /// </summary>

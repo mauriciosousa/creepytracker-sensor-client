@@ -79,7 +79,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             
         }
 
-        public void processRequests(ArrayList byte_list)
+        public void ProcessRequests(ArrayList byte_list)
         {
             List<CloudMessage> todelete = new List<CloudMessage>();
             for (int i = 0; i < PendingRequests.Count; i++)
@@ -104,7 +104,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 // This is the heading for every package.
                 string msg = "CloudMessage" + MessageSeparators.L0 + Environment.MachineName + MessageSeparators.L1 + messageCount + MessageSeparators.L1; // String to tag the sensor
                 // Get the heading bytes.
+                int remainder =4- (msg.Length % 4);
+                while (remainder-- > 0) msg = 'C' + msg; 
+
                 byte[] msg_bytes = Encoding.ASCII.GetBytes(msg); // Convert to bytes
+
+                IPEndPoint ep = new IPEndPoint(cm.ReplyIpAddress, cm.Port);
 
                 for (limit = 0; limit < points_bytes.Length; limit += 8000) // Each packet has 500 points (16 * 500 = 8000 bytes)
                 {
@@ -120,22 +125,26 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         Array.Copy(msg_bytes, 0, final_bytes, 0, msg_bytes.Length);
                         Array.Copy(points_bytes, limit, final_bytes, msg_bytes.Length, 8000);
                     }
+                    
+                   //IPEndPoint ep = new IPEndPoint(cm.ReplyIpAddress, cm.Port);
 
-                    IPEndPoint ep = new IPEndPoint(cm.ReplyIpAddress, cm.Port);
                     try
                     {
+                       // System.Threading.Thread.Sleep(1);
                         _udpClient.Send(final_bytes, final_bytes.Length, ep); // Send the bytes
                         if (cm.Mode == 0)
                         {
                             todelete.Add(cm);
                         }
-                        msg = "";
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine("Error sending data to " + cm.ReplyIpAddress.ToString() + " " + e.Message);
                     }
                 }
+                msg_bytes = Encoding.ASCII.GetBytes(msg); // Convert to bytes
+             //   System.Threading.Thread.Sleep(1);
+                _udpClient.Send(msg_bytes, msg_bytes.Length, ep); // Send the bytes
             }
             foreach (CloudMessage cm in todelete)
             {
@@ -148,7 +157,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         {
             if (_udpClient != null) _udpClient.Close();
         }
-
 
     }
 }
