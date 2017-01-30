@@ -179,7 +179,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private byte[] xv, yv, zv; // TMA: To store the 4 bytes of float x, y and z
         private List<Vector4> head_pos = new List<Vector4>(); // TMA: To keep track of the bodies' heads
         private List<Vector4> hand_pos = new List<Vector4>(); // TMA: To keep track of the bodies' hands
-        private float radius_head = 0.25f; // TMA: Radius around head where the sampling value is lower than the input
+        private float radius_head = 0.22f; // TMA: Radius around head where the sampling value is lower than the input
         private float radius_hand = 0.15f; // TMA: Radius around hands where the sampling value is lower than the input
 
         /// <summary>
@@ -516,7 +516,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            points.Clear(); // TMA: Clean the Array List at each frame
+            points = new ArrayList(); // TMA: Clean the Array List at each frame
             if (udpListener.PendingRequests.Count > 0)
             {
                 
@@ -614,12 +614,15 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 
                     bool? a = none.IsChecked; // TMA: Is it 'None'?
                     bool bnone = a != null ? (bool)a : false;
-                    bool bheads = false, bhands = false;
+                    bool bheads = false, bhands = false, bVR = false;
                     if (!bnone) // TMA: If it isn't:
                     {
                         bool? b = heads.IsChecked; //TMA: Is it 'Heads' ?
                         bheads = b != null ? (bool)b : false;
-                        bhands = !bheads; //TMA: ts is 'Heads', so it can't be 'Hands'. It goes both ways.
+                        bool? b2 = hands.IsChecked;
+                        bhands = b2 != null ? (bool)b2 : false;
+                        bool? b3 = vr.IsChecked;
+                        bVR = b3 != null ? (bool)b3 : false;
 
                         foreach (Body body in bodies)
                         {
@@ -627,7 +630,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             {
                                 foreach (Joint j in body.Joints.Values)
                                 {
-                                    if (bheads && j.JointType == Microsoft.Kinect.JointType.Head) // TMA: If it's 'Heads'
+                                    if ((bheads || bVR) && j.JointType == Microsoft.Kinect.JointType.Head) // TMA: If it's 'Heads'
                                     {
                                         Vector4 newHead = new Vector4();
                                         newHead.X = j.Position.X;
@@ -635,7 +638,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                         newHead.Z = j.Position.Z;
                                         head_pos.Add(newHead); // TMA: Store in the heads vector
                                     }
-                                    else if (bhands && (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)) // TMA: If it's 'Hands'
+                                    else if ((bhands || bVR) && (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)) // TMA: If it's 'Hands'
                                     {
                                         Vector4 newHand = new Vector4();
                                         newHand.X = j.Position.X;
@@ -694,15 +697,36 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     bool toadd = false;
                                     bool hires = false;
                                     // TMA: Update the step if looking for detail
-                                    if (bheads && checkHead(p.X, p.Y, p.Z) && checkStep(x, y, step / 2)) // Check if the point belongs to the head detail zone
+                                    if (bheads && checkHead(p.X, p.Y, p.Z)) // Check if the point belongs to the head detail zone
                                     {
-                                        toadd = true;
-                                        hires = true;
+                                        if (checkStep(x, y, step / 2)) { 
+                                            toadd = true;
+                                            hires = true;
+                                        }
                                     }
-                                    else if(bhands && checkHands(p.X, p.Y, p.Z) && checkStep(x, y, step / 2)) // Check if the point belongs to any hands detail zone
+                                    else if(bhands && checkHands(p.X, p.Y, p.Z) ) // Check if the point belongs to any hands detail zone
                                     {
-                                        toadd = true;
-                                        hires = true; 
+                                        if(checkStep(x, y, step / 2))
+                                        {
+                                            toadd = true;
+                                            hires = true;
+                                        } 
+                                    }
+                                    else if (bVR)
+                                    {
+                                        if (checkHands(p.X, p.Y, p.Z) && checkStep(x, y, step / 2)) {
+                                            toadd = true;
+                                            hires = true;
+                                        }
+                                        else if (checkHead(p.X, p.Y, p.Z))
+                                        {
+                                            toadd = false;
+                                        }
+                                        else if (checkStep(x, y, step))
+                                        {
+                                            toadd = true;
+                                            hires = false;
+                                        }
                                     }
                                     else if(checkStep(x, y, step))
                                     {
@@ -727,16 +751,23 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                         points.Add(r); // r
                                         points.Add(g); // g
                                         points.Add(b); // b
-
-                                        if(hires) points.Add((byte)1); // Mark as a HighRes point
-                                        else points.Add((byte)0); // Mark as a LowRes point
+                                        int i = 0;
+                                        if (hires)
+                                             points.Add((byte)1); // Mark as a HighRes point
+                                        else
+                                            points.Add((byte)0); // Mark as a LowRes point
                                     }
                                 }
                             }
                         }
                     }
+
           
-                    udpListener.ProcessRequests(points);
+                    //udpListener.ProcessRequests(points);
+
+                    if(points.Count > 0)
+                        udpListener.ProcessRequests(points);
+
                 }
             }
         }
