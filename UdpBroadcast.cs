@@ -49,12 +49,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 try
                 {
-                    if (DateTime.Now > _lastSent)
-                    {
+                    //if (DateTime.Now > _lastSent)
+                    //{
                         byte[] data = Encoding.UTF8.GetBytes(line);
                         _udp.Send(data, data.Length, _remoteEndPoint);
                         _lastSent = DateTime.Now;
-                    }
+                    //}
                 }
                 catch (Exception e)
                 {
