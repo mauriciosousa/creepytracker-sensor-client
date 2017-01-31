@@ -761,8 +761,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             }
                         }
                     }
-                    //udpListener.ProcessRequests(points);
-                    if(points.Count > 0) udpListener.ProcessRequests(points);
+                    if(points.Count > 0)
+                        udpListener.ProcessRequests(points);
                 }
             }
         }
