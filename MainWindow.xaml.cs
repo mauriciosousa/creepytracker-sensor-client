@@ -17,7 +17,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     using System.Windows.Media.Imaging;
     using System.Text;
     using Microsoft.Kinect;
-    using System.Collections; // TMA: To include ArrayList
+
 
     /// <summary>
     /// Interaction logic for MainWindow
@@ -132,22 +132,22 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <summary>
         /// Array for the bodies
         /// </summary>
-        private Body[] bodies = null;
+        private Body[] _bodies = null;
 
         /// <summary>
         /// Intermediate storage for receiving body index frame data from the sensor
         /// </summary>
-        private byte[] bodyIndexFrameData = null;
+        private byte[] _bodyIndexFrameData = null;
 
         /// <summary>
         /// definition of bones
         /// </summary>
-        private List<Tuple<JointType, JointType>> bones;
+        private List<Tuple<JointType, JointType>> _bones;
 
         /// <summary>
         /// Width of display (depth space)
         /// </summary>
-        private int displayWidth;
+        private int _displayWidth;
 
         /// <summary>
         /// Height of display (depth space)
@@ -169,18 +169,21 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private string udpPort;
 
-        private UdpBroadcast udp;
-        private UdpListener udpListener;
+        private UdpBroadcast _udp;
+        private UdpListener _udpListener;
         private Dictionary<string, int> JointsConfidenceWeight;
 
         private int step = 1;
 
-        private ArrayList points = new ArrayList(); // TMA: To store the bytes
-        private byte[] xv, yv, zv; // TMA: To store the 4 bytes of float x, y and z
-        private List<Vector4> head_pos = new List<Vector4>(); // TMA: To keep track of the bodies' heads
-        private List<Vector4> hand_pos = new List<Vector4>(); // TMA: To keep track of the bodies' hands
-        private float radius_head = 0.22f; // TMA: Radius around head where the sampling value is lower than the input
-        private float radius_hand = 0.15f; // TMA: Radius around hands where the sampling value is lower than the input
+        private List<byte> _points = new List<byte>(); // TMA: To store the bytes
+
+        private byte[] _xv, _yv, _zv; // TMA: To store the 4 bytes of float x, y and z
+
+        private List<Vector4> _headPos = new List<Vector4>(); // TMA: To keep track of the bodies' heads
+        private List<Vector4> _handPos = new List<Vector4>(); // TMA: To keep track of the bodies' hands
+
+        private float _radiusHead = 0.22f; // TMA: Radius around head where the sampling value is lower than the input
+        private float _radiusHand = 0.15f; // TMA: Radius around hands where the sampling value is lower than the input
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -197,7 +200,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             FrameDescription frameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
 
             // get size of joint space
-            this.displayWidth = frameDescription.Width;
+            this._displayWidth = frameDescription.Width;
             this.displayHeight = frameDescription.Height;
 
             // open the reader for the body frames
@@ -217,7 +220,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             this.depthFrameData = new ushort[depthWidth * depthHeight];
             this.colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
             this.cameraPoints = new CameraSpacePoint[depthWidth * depthHeight];
-            this.bodyIndexFrameData = new byte[depthWidth * depthHeight];
+            this._bodyIndexFrameData = new byte[depthWidth * depthHeight];
 
             // get FrameDescription from ColorFrameSource
             FrameDescription colorFrameDescription = this.kinectSensor.ColorFrameSource.FrameDescription;
@@ -229,41 +232,41 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             this.colorFrameData = new byte[colorWidth * colorHeight * this.bytesPerPixel];
 
             // a bone defined as a line between two joints
-            this.bones = new List<Tuple<JointType, JointType>>();
+            this._bones = new List<Tuple<JointType, JointType>>();
 
             // Torso
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.Head, JointType.Neck));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.Neck, JointType.SpineShoulder));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.SpineMid));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.SpineMid, JointType.SpineBase));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.ShoulderRight));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.ShoulderLeft));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.SpineBase, JointType.HipRight));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.SpineBase, JointType.HipLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.Head, JointType.Neck));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.Neck, JointType.SpineShoulder));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.SpineMid));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.SpineMid, JointType.SpineBase));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.ShoulderRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.ShoulderLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.SpineBase, JointType.HipRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.SpineBase, JointType.HipLeft));
 
             // Right Arm
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.ShoulderRight, JointType.ElbowRight));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.ElbowRight, JointType.WristRight));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.WristRight, JointType.HandRight));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.HandRight, JointType.HandTipRight));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.WristRight, JointType.ThumbRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.ShoulderRight, JointType.ElbowRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.ElbowRight, JointType.WristRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.WristRight, JointType.HandRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.HandRight, JointType.HandTipRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.WristRight, JointType.ThumbRight));
 
             // Left Arm
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.ShoulderLeft, JointType.ElbowLeft));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.ElbowLeft, JointType.WristLeft));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.WristLeft, JointType.HandLeft));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.HandLeft, JointType.HandTipLeft));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.WristLeft, JointType.ThumbLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.ShoulderLeft, JointType.ElbowLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.ElbowLeft, JointType.WristLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.WristLeft, JointType.HandLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.HandLeft, JointType.HandTipLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.WristLeft, JointType.ThumbLeft));
 
             // Right Leg
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.HipRight, JointType.KneeRight));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.KneeRight, JointType.AnkleRight));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.AnkleRight, JointType.FootRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.HipRight, JointType.KneeRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.KneeRight, JointType.AnkleRight));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.AnkleRight, JointType.FootRight));
 
             // Left Leg
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.HipLeft, JointType.KneeLeft));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.KneeLeft, JointType.AnkleLeft));
-            this.bones.Add(new Tuple<JointType, JointType>(JointType.AnkleLeft, JointType.FootLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.HipLeft, JointType.KneeLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.KneeLeft, JointType.AnkleLeft));
+            this._bones.Add(new Tuple<JointType, JointType>(JointType.AnkleLeft, JointType.FootLeft));
 
             // populate body colors, one for each BodyIndex
             this.bodyColors = new List<Pen>();
@@ -295,20 +298,15 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
             // use the window object as the view model in this simple example
             this.DataContext = this;
-
-
-
+            
             // initialize the components (controls) of the window
             this.InitializeComponent();
-
 
             NetworkConfigFile f = new NetworkConfigFile("network.conf");
             UdpPort = f.Port;
             JointsConfidenceWeight = f.JointConfidenceWeight;
-            udpListener = new UdpListener(int.Parse(UdpPort) + 1);
-            udpListener.UdpRestart();
-
-
+            _udpListener = new UdpListener(int.Parse(UdpPort) + 1);
+            _udpListener.UdpRestart();
         }
 
         /// <summary>
@@ -387,7 +385,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <param name="e">event arguments</param>
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            udp = new UdpBroadcast(int.Parse(UdpPort));
+            _udp = new UdpBroadcast(int.Parse(UdpPort));
 
             if (this.bodyFrameReader != null)
             {
@@ -414,9 +412,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 this.kinectSensor.Close();
                 this.kinectSensor = null;
             }
-            if (this.udpListener != null)
+            if (this._udpListener != null)
             {
-                this.udpListener.OnApplicationQuit();
+                this._udpListener.OnApplicationQuit();
             }
         }
 
@@ -433,16 +431,16 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 if (bodyFrame != null)
                 {
-                    if (this.bodies == null)
+                    if (this._bodies == null)
                     {
-                        this.bodies = new Body[bodyFrame.BodyCount];
+                        this._bodies = new Body[bodyFrame.BodyCount];
                         
                     }
 
                     // The first time GetAndRefreshBodyData is called, Kinect will allocate each Body in the array.
                     // As long as those body objects are not disposed and not set to null in the array,
                     // those body objects will be re-used.
-                    bodyFrame.GetAndRefreshBodyData(this.bodies);
+                    bodyFrame.GetAndRefreshBodyData(this._bodies);
                     dataReceived = true;
                 }
                 
@@ -457,12 +455,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 using (DrawingContext dc = this.drawingGroup.Open())
                 {
                     // Draw a transparent background to set the render size
-                    dc.DrawRectangle(Brushes.White, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+                    dc.DrawRectangle(Brushes.White, null, new Rect(0.0, 0.0, this._displayWidth, this.displayHeight));
 
                     
 
                     int penIndex = 0;
-                    foreach (Body body in this.bodies)
+                    foreach (Body body in this._bodies)
                     {
                         Pen drawPen = this.bodyColors[penIndex++];
 
@@ -504,11 +502,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     }
 
                     // prevent drawing outside of our render area
-                    this.drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+                    this.drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this._displayWidth, this.displayHeight));
 
 
                     BodiesMessage message = new BodiesMessage(bodiesToSend.ToArray(), JointsConfidenceWeight);
-                    udp.Send(message.Message);
+                    _udp.Send(message.Message);
                 }
             }
         }
@@ -516,8 +514,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            points = new ArrayList(); // TMA: Clean the Array List at each frame
-            if (udpListener.PendingRequests.Count > 0)
+            _points = new List<byte>(); // TMA: Clean the Array List at each frame
+            if (_udpListener.PendingRequests.Count > 0 || _udpListener.Clients.Count > 0)
             {
                 
                 int depthWidth = 0;
@@ -585,9 +583,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     bodyIndexWidth = bodyIndexFrameDescription.Width;
                                     bodyIndexHeight = bodyIndexFrameDescription.Height;
 
-                                    if ((bodyIndexWidth * bodyIndexHeight) == this.bodyIndexFrameData.Length)
+                                    if ((bodyIndexWidth * bodyIndexHeight) == this._bodyIndexFrameData.Length)
                                     {
-                                        bodyIndexFrame.CopyFrameDataToArray(this.bodyIndexFrameData);
+                                        bodyIndexFrame.CopyFrameDataToArray(this._bodyIndexFrameData);
 
                                         bodyIndexFrameProcessed = true;
                                     }
@@ -609,8 +607,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     this.coordinateMapper.MapDepthFrameToColorSpace(this.depthFrameData, this.colorPoints);
                     this.coordinateMapper.MapDepthFrameToCameraSpace(this.depthFrameData, this.cameraPoints);
 
-                    head_pos.Clear(); // TMA: Clear all the heads from previous frame.
-                    hand_pos.Clear(); // TMA: Clear all the hands from previous frame.
+                    _headPos.Clear(); // TMA: Clear all the heads from previous frame.
+                    _handPos.Clear(); // TMA: Clear all the hands from previous frame.
                 
                     bool? a = none.IsChecked; // TMA: Is it 'None'?
                     bool bnone = a != null ? (bool)a : false;
@@ -624,7 +622,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         bool? b3 = vr.IsChecked;
                         bVR = b3 != null ? (bool)b3 : false;
 
-                        foreach (Body body in bodies)
+                        foreach (Body body in _bodies)
                         {
                             if (body.TrackingId != 0)
                             {
@@ -636,7 +634,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                         newHead.X = j.Position.X;
                                         newHead.Y = j.Position.Y;
                                         newHead.Z = j.Position.Z;
-                                        head_pos.Add(newHead); // TMA: Store in the heads vector
+                                        _headPos.Add(newHead); // TMA: Store in the heads vector
                                     }
                                     else if ((bhands || bVR) && (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)) // TMA: If it's 'Hands'
                                     {
@@ -644,7 +642,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                         newHand.X = j.Position.X;
                                         newHand.Y = j.Position.Y;
                                         newHand.Z = j.Position.Z;
-                                        hand_pos.Add(newHand); // TMA: Store in the hands vector
+                                        _handPos.Add(newHand); // TMA: Store in the hands vector
                                     }
                                 }
                             }
@@ -653,6 +651,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                     int st = bnone ? step : 1;
                     // loop over each row and column of the depth
+
+                    uint messageCount = _udpListener.messageCount;
+                    byte[] id =  BitConverter.GetBytes(messageCount);
+                    _points.AddRange(id);
                     for (int y = 0; y < depthHeight; y += st)
                     {
                         for (int x = 0; x < depthWidth; x += st)
@@ -661,13 +663,13 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             // calculate index into depth array
                             int depthIndex = (y * depthWidth) + x;
 
-                            byte player = this.bodyIndexFrameData[depthIndex];
+                            byte player = this._bodyIndexFrameData[depthIndex];
                             bool? c = onlyPlayers.IsChecked;
                             bool val = c != null ? (bool)c : false;
                                 // if we're tracking a player for the current pixel, sets its color and alpha to full
-                             if (!val || player != 0xff)
+                             if (!val || (val && player != 0xff))
                              {
-
+                                
                                  CameraSpacePoint p = this.cameraPoints[depthIndex];
 
                                  // retrieve the depth to color mapping for the current depth pixel
@@ -697,16 +699,16 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     bool toadd = false;
                                     bool hires = false;
                                     // TMA: Update the step if looking for detail
-                                    if (bheads && checkHead(p.X, p.Y, p.Z)) // Check if the point belongs to the head detail zone
+                                    if (bheads && CheckHead(p.X, p.Y, p.Z)) // Check if the point belongs to the head detail zone
                                     {
-                                        if (checkStep(x, y, step / 2)) { 
+                                        if (CheckStep(x, y, step / 2)) { 
                                             toadd = true;
                                             hires = true;
                                         }
                                     }
-                                    else if(bhands && checkHands(p.X, p.Y, p.Z) ) // Check if the point belongs to any hands detail zone
+                                    else if(bhands && CheckHands(p.X, p.Y, p.Z) ) // Check if the point belongs to any hands detail zone
                                     {
-                                        if(checkStep(x, y, step / 2))
+                                        if(CheckStep(x, y, step / 2))
                                         {
                                             toadd = true;
                                             hires = true;
@@ -714,30 +716,30 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     }
                                     else if (bVR)
                                     {
-                                        if (checkHands(p.X, p.Y, p.Z) && checkStep(x, y, step / 2)) {
+                                        if (CheckHands(p.X, p.Y, p.Z) && CheckStep(x, y, step / 2)) {
                                             toadd = true;
                                             hires = true;
                                         }
-                                        else if (checkHead(p.X, p.Y, p.Z))
+                                        else if (CheckHead(p.X, p.Y, p.Z))
                                         {
                                             toadd = false;
                                         }
-                                        else if (checkStep(x, y, step))
+                                        else if (CheckStep(x, y, step))
                                         {
                                             toadd = true;
                                             hires = false;
                                         }
                                     }
-                                    else if(checkStep(x, y, step))
+                                    else if(CheckStep(x, y, step))
                                     {
                                         toadd = true;
                                         hires = false;
                                     }
                                     if (toadd) { 
                                         // TMA: Convert the floats to bytes.
-                                        xv = BitConverter.GetBytes(p.X); // x
-                                        yv = BitConverter.GetBytes(p.Y); // y
-                                        zv = BitConverter.GetBytes(p.Z); // z
+                                        _xv = BitConverter.GetBytes(p.X); // x
+                                        _yv = BitConverter.GetBytes(p.Y); // y
+                                        _zv = BitConverter.GetBytes(p.Z); // z
                                         // Add the (x,y,z,r,g,b,res) information to the arraylist.
                                         // This last byte marks the point has being a High Resolution one (value = 1) or Low Resolution (value = 0).
                                         // This is important in the tracker. Look there in CloudMessage.cs.
@@ -745,29 +747,37 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                         // --- 4 bytes for each component of (x, y, z).
                                         // --- 1 byte per color component.
                                         // --- 1 byte per detail bool.
-                                        foreach (byte bt in xv) points.Add(bt); // x
-                                        foreach (byte bt in yv) points.Add(bt); // y
-                                        foreach (byte bt in zv) points.Add(bt); // z
-                                        points.Add(r); // r
-                                        points.Add(g); // g
-                                        points.Add(b); // b
+                                        foreach (byte bt in _xv) _points.Add(bt); // x
+                                        foreach (byte bt in _yv) _points.Add(bt); // y
+                                        foreach (byte bt in _zv) _points.Add(bt); // z
+                                        _points.Add(r); // r
+                                        _points.Add(g); // g
+                                        _points.Add(b); // b
                                         int i = 0;
                                         if (hires)
-                                             points.Add((byte)1); // Mark as a HighRes point
+                                             _points.Add((byte)1); // Mark as a HighRes point
                                         else
-                                            points.Add((byte)0); // Mark as a LowRes point
+                                            _points.Add((byte)0); // Mark as a LowRes point
                                     }
                                 }
                             }
                         }
                     }
-                    if(points.Count > 0)
-                        udpListener.ProcessRequests(points);
+                    if(_points.Count > 0) {
+
+                        foreach (TcpSender client in _udpListener.Clients)
+                        {
+                            client.write(_points.ToArray());
+                        }
+                        if (_udpListener.PendingRequests.Count > 0)
+                            _points.RemoveRange(0, 4);
+                            _udpListener.processRequests(_points);
+                    }
                 }
             }
         }
 
-        private bool checkStep(int x, int y, int step)
+        private bool CheckStep(int x, int y, int step)
         {
             if (x % step == 0 && y % step == 0)
                 return true;
@@ -780,11 +790,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <param name="x">x coordinate</param>
         /// <param name="y">y coordinate</param>
         /// <param name="z">z coordinate</param>
-        private bool checkHead(float x, float y, float z)
+        private bool CheckHead(float x, float y, float z)
         {
-            foreach (Vector4 head in head_pos)
+            foreach (Vector4 head in _headPos)
             {
-                if (Math.Sqrt(Math.Pow(head.X - x, 2) + Math.Pow(head.Y - y, 2) + Math.Pow(head.Z - z, 2)) <= radius_head)
+                if (Math.Sqrt(Math.Pow(head.X - x, 2) + Math.Pow(head.Y - y, 2) + Math.Pow(head.Z - z, 2)) <= _radiusHead)
                     return true;
             }
             return false;
@@ -796,11 +806,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <param name="x">x coordinate</param>
         /// <param name="y">y coordinate</param>
         /// <param name="z">z coordinate</param>
-        private bool checkHands(float x, float y, float z)
+        private bool CheckHands(float x, float y, float z)
         {
-            foreach (Vector4 hand in hand_pos)
+            foreach (Vector4 hand in _handPos)
             {
-                if (Math.Sqrt(Math.Pow(hand.X - x, 2) + Math.Pow(hand.Y - y, 2) + Math.Pow(hand.Z - z, 2)) <= radius_hand)
+                if (Math.Sqrt(Math.Pow(hand.X - x, 2) + Math.Pow(hand.Y - y, 2) + Math.Pow(hand.Z - z, 2)) <= _radiusHand)
                     return true;
             }
             return false;
@@ -817,7 +827,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private void DrawBody(IReadOnlyDictionary<JointType, Joint> joints, IDictionary<JointType, Point> jointPoints, DrawingContext drawingContext, Pen drawingPen)
         {
             // Draw the bones
-            foreach (var bone in this.bones)
+            foreach (var bone in this._bones)
             {
                 this.DrawBone(joints, jointPoints, bone.Item1, bone.Item2, drawingContext, drawingPen);
             }
@@ -914,7 +924,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 drawingContext.DrawRectangle(
                     Brushes.Red,
                     null,
-                    new Rect(0, this.displayHeight - ClipBoundsThickness, this.displayWidth, ClipBoundsThickness));
+                    new Rect(0, this.displayHeight - ClipBoundsThickness, this._displayWidth, ClipBoundsThickness));
             }
 
             if (clippedEdges.HasFlag(FrameEdges.Top))
@@ -922,7 +932,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 drawingContext.DrawRectangle(
                     Brushes.Red,
                     null,
-                    new Rect(0, 0, this.displayWidth, ClipBoundsThickness));
+                    new Rect(0, 0, this._displayWidth, ClipBoundsThickness));
             }
 
             if (clippedEdges.HasFlag(FrameEdges.Left))
@@ -938,7 +948,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 drawingContext.DrawRectangle(
                     Brushes.Red,
                     null,
-                    new Rect(this.displayWidth - ClipBoundsThickness, 0, ClipBoundsThickness, this.displayHeight));
+                    new Rect(this._displayWidth - ClipBoundsThickness, 0, ClipBoundsThickness, this.displayHeight));
             }
         }
 
@@ -967,9 +977,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private void resetBroadcast()
         {
             UdpPort = portTextBox.Text;
-            udp.Reset(int.Parse(UdpPort));
-            udpListener.Port = int.Parse(UdpPort)+1;
-            udpListener.UdpRestart();
+            _udp.Reset(int.Parse(UdpPort));
+            _udpListener.Port = int.Parse(UdpPort)+1;
+            _udpListener.UdpRestart();
             expander.IsExpanded = false;
             
         }

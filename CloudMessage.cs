@@ -18,6 +18,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         public CloudMessage(string m)
         {
             string[] msg = m.Split(MessageSeparators.L1);
+
             ReplyIpAddress = IPAddress.Parse(msg[0]);
             Mode = int.Parse(msg[1]); 
             Port = int.Parse(msg[2]);
