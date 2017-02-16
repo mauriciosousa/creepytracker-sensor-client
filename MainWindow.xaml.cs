@@ -17,7 +17,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     using System.Windows.Media.Imaging;
     using System.Text;
     using Microsoft.Kinect;
-    using System.Collections; // TMA: To include ArrayList
+
 
     /// <summary>
     /// Interaction logic for MainWindow
@@ -175,7 +175,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private int step = 1;
 
-        private ArrayList points = new ArrayList(); // TMA: To store the bytes
+        private List<byte> points = new List<byte>(); // TMA: To store the bytes
         private byte[] xv, yv, zv; // TMA: To store the 4 bytes of float x, y and z
         private List<Vector4> head_pos = new List<Vector4>(); // TMA: To keep track of the bodies' heads
         private List<Vector4> hand_pos = new List<Vector4>(); // TMA: To keep track of the bodies' hands
@@ -518,8 +518,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            points = new ArrayList(); // TMA: Clean the Array List at each frame
-            if (udpListener.PendingRequests.Count > 0)
+            points = new List<byte>(); // TMA: Clean the Array List at each frame
+            if (udpListener.PendingRequests.Count > 0 || udpListener.Clients.Count > 0)
             {
                 
                 int depthWidth = 0;
@@ -655,6 +655,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                     int st = bnone ? step : 1;
                     // loop over each row and column of the depth
+
+                    uint messageCount = udpListener.messageCount;
+                    byte[] id =  BitConverter.GetBytes(messageCount);
+                    points.AddRange(id);
                     for (int y = 0; y < depthHeight; y += st)
                     {
                         for (int x = 0; x < depthWidth; x += st)
@@ -667,9 +671,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             bool? c = onlyPlayers.IsChecked;
                             bool val = c != null ? (bool)c : false;
                                 // if we're tracking a player for the current pixel, sets its color and alpha to full
-                             if (!val || player != 0xff)
+                             if (!val || (val && player != 0xff))
                              {
-
+                                
                                  CameraSpacePoint p = this.cameraPoints[depthIndex];
 
                                  // retrieve the depth to color mapping for the current depth pixel
@@ -763,8 +767,18 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             }
                         }
                     }
-                    if(points.Count > 0)
-                        udpListener.processRequests(points);
+                    if(points.Count > 0) {
+
+                        foreach (TcpSender client in udpListener.Clients)
+                        {
+                            client.write(points.ToArray());
+                        }
+
+                        if (udpListener.PendingRequests.Count > 0)
+                            points.RemoveRange(0, 4);
+                            udpListener.processRequests(points);
+                        
+                    }
                 }
             }
         }
