@@ -17,7 +17,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     using System.Windows.Media.Imaging;
     using System.Text;
     using Microsoft.Kinect;
-    using System.Collections; // TMA: To include ArrayList
+
 
     /// <summary>
     /// Interaction logic for MainWindow
@@ -175,7 +175,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private int step = 1;
 
-        private ArrayList points = new ArrayList(); // TMA: To store the bytes
+        private List<byte> points = new List<byte>(); // TMA: To store the bytes
         private byte[] xv, yv, zv; // TMA: To store the 4 bytes of float x, y and z
         private List<Vector4> head_pos = new List<Vector4>(); // TMA: To keep track of the bodies' heads
         private List<Vector4> hand_pos = new List<Vector4>(); // TMA: To keep track of the bodies' hands
@@ -516,8 +516,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            points = new ArrayList(); // TMA: Clean the Array List at each frame
-            if (udpListener.PendingRequests.Count > 0)
+            points = new List<byte>(); // TMA: Clean the Array List at each frame
+            if (udpListener.PendingRequests.Count > 0 || udpListener.Clients.Count > 0)
             {
                 
                 int depthWidth = 0;
@@ -653,6 +653,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                     int st = bnone ? step : 1;
                     // loop over each row and column of the depth
+
+                    uint messageCount = udpListener.MessageCount;
+                    byte[] id =  BitConverter.GetBytes(messageCount);
+                    points.AddRange(id);
                     for (int y = 0; y < depthHeight; y += st)
                     {
                         for (int x = 0; x < depthWidth; x += st)
@@ -665,9 +669,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             bool? c = onlyPlayers.IsChecked;
                             bool val = c != null ? (bool)c : false;
                                 // if we're tracking a player for the current pixel, sets its color and alpha to full
-                             if (!val || player != 0xff)
+                             if (!val || (val && player != 0xff))
                              {
-
+                                
                                  CameraSpacePoint p = this.cameraPoints[depthIndex];
 
                                  // retrieve the depth to color mapping for the current depth pixel
@@ -697,16 +701,16 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     bool toadd = false;
                                     bool hires = false;
                                     // TMA: Update the step if looking for detail
-                                    if (bheads && checkHead(p.X, p.Y, p.Z)) // Check if the point belongs to the head detail zone
+                                    if (bheads && CheckHead(p.X, p.Y, p.Z)) // Check if the point belongs to the head detail zone
                                     {
-                                        if (checkStep(x, y, step / 2)) { 
+                                        if (CheckStep(x, y, step / 2)) { 
                                             toadd = true;
                                             hires = true;
                                         }
                                     }
-                                    else if(bhands && checkHands(p.X, p.Y, p.Z) ) // Check if the point belongs to any hands detail zone
+                                    else if(bhands && CheckHands(p.X, p.Y, p.Z) ) // Check if the point belongs to any hands detail zone
                                     {
-                                        if(checkStep(x, y, step / 2))
+                                        if(CheckStep(x, y, step / 2))
                                         {
                                             toadd = true;
                                             hires = true;
@@ -714,21 +718,21 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     }
                                     else if (bVR)
                                     {
-                                        if (checkHands(p.X, p.Y, p.Z) && checkStep(x, y, step / 2)) {
+                                        if (CheckHands(p.X, p.Y, p.Z) && CheckStep(x, y, step / 2)) {
                                             toadd = true;
                                             hires = true;
                                         }
-                                        else if (checkHead(p.X, p.Y, p.Z))
+                                        else if (CheckHead(p.X, p.Y, p.Z))
                                         {
                                             toadd = false;
                                         }
-                                        else if (checkStep(x, y, step))
+                                        else if (CheckStep(x, y, step))
                                         {
                                             toadd = true;
                                             hires = false;
                                         }
                                     }
-                                    else if(checkStep(x, y, step))
+                                    else if(CheckStep(x, y, step))
                                     {
                                         toadd = true;
                                         hires = false;
@@ -761,13 +765,22 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             }
                         }
                     }
-                    if(points.Count > 0)
-                        udpListener.ProcessRequests(points);
+                    if(points.Count > 0) {
+
+                        foreach (TcpSender client in udpListener.Clients)
+                        {
+                            client.write(points.ToArray());
+                        }
+
+                        if (udpListener.PendingRequests.Count > 0)
+                            points.RemoveRange(0, 4);
+                            udpListener.ProcessRequests(points);
+                    }
                 }
             }
         }
 
-        private bool checkStep(int x, int y, int step)
+        private bool CheckStep(int x, int y, int step)
         {
             if (x % step == 0 && y % step == 0)
                 return true;
@@ -780,7 +793,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <param name="x">x coordinate</param>
         /// <param name="y">y coordinate</param>
         /// <param name="z">z coordinate</param>
-        private bool checkHead(float x, float y, float z)
+        private bool CheckHead(float x, float y, float z)
         {
             foreach (Vector4 head in head_pos)
             {
@@ -796,7 +809,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <param name="x">x coordinate</param>
         /// <param name="y">y coordinate</param>
         /// <param name="z">z coordinate</param>
-        private bool checkHands(float x, float y, float z)
+        private bool CheckHands(float x, float y, float z)
         {
             foreach (Vector4 hand in hand_pos)
             {
