@@ -8,16 +8,18 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 {
     public class UdpListener
     {
-        //    public List<CloudMessage> PendingRequests;
+        //public List<CloudMessage> PendingRequests;
+
 
         private UdpClient _udpClient = null;
         private IPEndPoint _anyIP;
 
         private int _port;
-        public uint messageCount;
-        int limit; // TMA: To keep track of the number of bytes sent.
 
-        byte[] final_bytes; // TMA: To point to the bytes that will be send.
+        public uint MessageCount;
+        int _limit; // TMA: To keep track of the number of bytes sent.
+
+        byte[] _finalBytes; // TMA: To point to the bytes that will be send.
 
         public List<CloudMessage> PendingRequests;
         public List<TcpSender> Clients;
@@ -72,15 +74,15 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 Console.WriteLine("Error on callback" + e.Message);
             }
-            
         }
 
-        public void processRequests(List<byte> byte_list)
+        public void ProcessRequests(List<byte> byteList)
+
         {
             List<CloudMessage> todelete = new List<CloudMessage>();
             for (int i = 0; i < PendingRequests.Count; i++)
             {
-
+                
                 CloudMessage cm = PendingRequests[i];
                 //Stop
                 if (cm.Mode == 2)
@@ -99,7 +101,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     continue;
                 }
 
-                
                if(cm.Mode == 1)
                 {
                     TcpSender newclient = new TcpSender();
@@ -110,45 +111,51 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                 if(cm.Mode == 0) {
                     // TMA: Get the bytes from the ArrayList
-                    byte[] points_bytes = byte_list.ToArray();
+                    byte[] points_bytes = byteList.ToArray();
                     // This is the heading for every package.
-                    string msg = "CloudMessage" + MessageSeparators.L0 + Environment.MachineName + MessageSeparators.L1 + messageCount + MessageSeparators.L1; // String to tag the sensor
+                    string msg = "CloudMessage" + MessageSeparators.L0 + Environment.MachineName + MessageSeparators.L1 + MessageCount + MessageSeparators.L1; // String to tag the sensor
                                                                                                                                                                // Get the heading bytes.
                     int remainder = 4 - (msg.Length % 4);
                     while (remainder-- > 0) msg = 'C' + msg;
 
-                    byte[] msg_bytes = Encoding.ASCII.GetBytes(msg); // Convert to bytes
+
+                    byte[] msgBytes = Encoding.ASCII.GetBytes(msg); // Convert to bytes
+
                     IPEndPoint ep = new IPEndPoint(cm.ReplyIpAddress, cm.Port);
-                    for (limit = 0; limit < points_bytes.Length; limit += 8000) // Each packet has 500 points (16 * 500 = 8000 bytes)
+                    for (_limit = 0; _limit < points_bytes.Length; _limit += 8000) // Each packet has 500 points (16 * 500 = 8000 bytes)
                     {
-                        if (limit + 8000 > points_bytes.Length) // If there are less points than 500
+                        if (_limit + 8000 > points_bytes.Length) // If there are less points than 500
+
                         {
-                            final_bytes = new byte[msg_bytes.Length + points_bytes.Length - limit];
-                            Array.Copy(msg_bytes, 0, final_bytes, 0, msg_bytes.Length);
-                            Array.Copy(points_bytes, limit, final_bytes, msg_bytes.Length, points_bytes.Length - limit);
+                            _finalBytes = new byte[msgBytes.Length + points_bytes.Length - _limit];
+                            Array.Copy(msgBytes, 0, _finalBytes, 0, msgBytes.Length);
+                            Array.Copy(points_bytes, _limit, _finalBytes, msgBytes.Length, points_bytes.Length - _limit);
                         }
                         else // If there are more or 500 points to send
                         {
-                            final_bytes = new byte[msg_bytes.Length + 8000];
-                            Array.Copy(msg_bytes, 0, final_bytes, 0, msg_bytes.Length);
-                            Array.Copy(points_bytes, limit, final_bytes, msg_bytes.Length, 8000);
+                            _finalBytes = new byte[msgBytes.Length + 8000];
+                            Array.Copy(msgBytes, 0, _finalBytes, 0, msgBytes.Length);
+                            Array.Copy(points_bytes, _limit, _finalBytes, msgBytes.Length, 8000);
                         }
                         
                         try
                         {
                             System.Threading.Thread.Sleep(2);
-                            _udpClient.Send(final_bytes, final_bytes.Length, ep); // Send the bytes
+                            _udpClient.Send(_finalBytes, _finalBytes.Length, ep); // Send the bytes
 
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("Error sending data to " + cm.ReplyIpAddress.ToString() + " " + e.Message);
+
+                            var exceptionMessage = "Error sending data to " + cm.ReplyIpAddress.ToString() + " " + e.Message;
+                            Console.WriteLine(exceptionMessage);
                         }
                     }
 
-                    msg_bytes = Encoding.ASCII.GetBytes(msg); // Convert to bytes
+                    msgBytes = Encoding.ASCII.GetBytes(msg); // Convert to bytes
+
                     System.Threading.Thread.Sleep(2);
-                    _udpClient.Send(msg_bytes, msg_bytes.Length, ep); // Send the bytes
+                    _udpClient.Send(msgBytes, msgBytes.Length, ep); // Send the bytes
                     todelete.Add(cm);
                 }
             }
@@ -157,7 +164,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 PendingRequests.Remove(cm);
             }
-            messageCount++;
+            MessageCount++;
         }
 
         public void OnApplicationQuit()

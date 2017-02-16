@@ -652,7 +652,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     int st = bnone ? step : 1;
                     // loop over each row and column of the depth
 
-                    uint messageCount = _udpListener.messageCount;
+
+                    uint messageCount = _udpListener.MessageCount;
+
                     byte[] id =  BitConverter.GetBytes(messageCount);
                     _points.AddRange(id);
                     for (int y = 0; y < depthHeight; y += st)
@@ -763,26 +765,24 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             }
                         }
                     }
-                    if(_points.Count > 0) {
 
+                    if(_points.Count > 0) {
                         foreach (TcpSender client in _udpListener.Clients)
                         {
                             client.write(_points.ToArray());
                         }
+
                         if (_udpListener.PendingRequests.Count > 0)
                             _points.RemoveRange(0, 4);
-                            _udpListener.processRequests(_points);
+                        _udpListener.ProcessRequests(_points);
                     }
                 }
             }
         }
 
-        private bool CheckStep(int x, int y, int step)
+        private static bool CheckStep(int x, int y, int step)
         {
-            if (x % step == 0 && y % step == 0)
-                return true;
-            else
-                return false;
+            return x % step == 0 && y % step == 0;
         }
         /// <summary>
         /// Checks if a point belongs inside a sphere with center in any head with euclidian distance.
