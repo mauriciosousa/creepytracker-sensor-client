@@ -85,7 +85,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         }
 
         public void ProcessRequests(List<byte> byteList)
-
         {
             List<CloudMessage> todelete = new List<CloudMessage>();
             List<TcpSender> todeleteSenders = null;

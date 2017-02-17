@@ -598,12 +598,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 {
                     int step = int.Parse(samplingTextBox.Text);
                     int oldstep = step; // TMA: Save the input sampling. If you want detail, after you get out of the detail zone update the step with this value.
-                    this.coordinateMapper.MapDepthFrameToColorSpace(this.depthFrameData, this.colorPoints);
+
+                    this.coordinateMapper.MapDepthFrameToColorSpace( this.depthFrameData, this.colorPoints);
                     this.coordinateMapper.MapDepthFrameToCameraSpace(this.depthFrameData, this.cameraPoints);
-
-
+                 
                     _headPos.Clear(); // TMA: Clear all the heads from previous frame.
-                    _headPos.Clear(); // TMA: Clear all the hands from previous frame.
+                    _handPos.Clear(); // TMA: Clear all the hands from previous frame.
 
                     bool? a = none.IsChecked; // TMA: Is it 'None'?
                     bool bnone = a != null ? (bool)a : false;
@@ -704,7 +704,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     else if (bhands && CheckHands(p.X, p.Y, p.Z)) // Check if the point belongs to any hands detail zone
                                     {
                                         if (CheckStep(x, y, step / 2))
-
                                         {
                                             toadd = true;
                                             hires = true;
@@ -712,7 +711,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     }
                                     else if (bVR)
                                     {
-
                                         if (CheckHands(p.X, p.Y, p.Z) && CheckStep(x, y, step / 2))
                                         {
                                             toadd = true;
@@ -788,7 +786,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         {
                             _udpListener.ProcessRequests(_points);
                         }
-
                         _udpListener.MessageCount++;
                     }
                 }
