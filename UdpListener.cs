@@ -9,27 +9,32 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     public class UdpListener
     {
         //public List<CloudMessage> PendingRequests;
-
-
-        private UdpClient _udpClient = null;
-        private IPEndPoint _anyIP;
-
-        private int _port;
-
-        public uint MessageCount;
-        int _limit; // TMA: To keep track of the number of bytes sent.
-
-        byte[] _finalBytes; // TMA: To point to the bytes that will be send.
-
         public List<CloudMessage> PendingRequests;
+
         public List<TcpSender> Clients;
 
+        private UdpClient _udpClient = null;
+
+        private IPEndPoint _anyIp;
+        
+        public uint MessageCount;
+
+        private int _port;
+        private int _limit; // TMA: To keep track of the number of bytes sent.
+
+        private byte[] _finalBytes; // TMA: To point to the bytes that will be send.
+        
         public int Port
         {
-            get { return _port; }
-            set { _port = value; }
+            get
+            {
+                return _port;
+            }
+            set
+            {
+                _port = value;
+            }
         }
-
         
         public UdpListener(int port)
         {
@@ -47,20 +52,22 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
             PendingRequests = new List<CloudMessage>();
 
-            _anyIP = new IPEndPoint(IPAddress.Any, _port);
+            _anyIp = new IPEndPoint(IPAddress.Any, _port);
 
-            _udpClient = new UdpClient(_anyIP);
+            _udpClient = new UdpClient(_anyIp);
 
             _udpClient.BeginReceive(new AsyncCallback(this.ReceiveCallback), null);
 
-            Console.WriteLine("[UDPListener] Receiving in port: " + _port);
+            var format = "[UDPListener] Receiving in port: " + _port;
+            Console.WriteLine(format);
         }
 
         public void ReceiveCallback(IAsyncResult ar)
         {
-            Console.WriteLine("[UDPListener] Received request: " + _port);
+            var format = "[UDPListener] Received request: " + _port;
+            Console.WriteLine(format);
             try { 
-                Byte[] receiveBytes = _udpClient.EndReceive(ar, ref _anyIP);
+                Byte[] receiveBytes = _udpClient.EndReceive(ar, ref _anyIp);
                 string request = Encoding.ASCII.GetString(receiveBytes);
                
                 string[] msg = request.Split(MessageSeparators.L0);
@@ -72,12 +79,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error on callback" + e.Message);
+                var exception = "Error on callback" + e.Message;
+                Console.WriteLine(exception);
             }
         }
 
         public void ProcessRequests(List<byte> byteList)
-
         {
             List<CloudMessage> todelete = new List<CloudMessage>();
             List<TcpSender> todeleteSenders = null;
@@ -123,33 +130,33 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     todelete.Add(cm);
                 }
 
-                if(cm.Mode == 0) {
+                if(cm.Mode == 0)
+                {
                     // TMA: Get the bytes from the ArrayList
-                    byte[] points_bytes = byteList.ToArray();
+                    byte[] pointsBytes = byteList.ToArray();
                     // This is the heading for every package.
                     string msg = "CloudMessage" + MessageSeparators.L0 + Environment.MachineName + MessageSeparators.L1 + MessageCount + MessageSeparators.L1; // String to tag the sensor
                                                                                                                                                                // Get the heading bytes.
                     int remainder = 4 - (msg.Length % 4);
                     while (remainder-- > 0) msg = 'C' + msg;
 
-
                     byte[] msgBytes = Encoding.ASCII.GetBytes(msg); // Convert to bytes
 
                     IPEndPoint ep = new IPEndPoint(cm.ReplyIpAddress, cm.Port);
-                    for (_limit = 0; _limit < points_bytes.Length; _limit += 8000) // Each packet has 500 points (16 * 500 = 8000 bytes)
+                    for (_limit = 0; _limit < pointsBytes.Length; _limit += 8000) // Each packet has 500 points (16 * 500 = 8000 bytes)
                     {
-                        if (_limit + 8000 > points_bytes.Length) // If there are less points than 500
+                        if (_limit + 8000 > pointsBytes.Length) // If there are less points than 500
 
                         {
-                            _finalBytes = new byte[msgBytes.Length + points_bytes.Length - _limit];
+                            _finalBytes = new byte[msgBytes.Length + pointsBytes.Length - _limit];
                             Array.Copy(msgBytes, 0, _finalBytes, 0, msgBytes.Length);
-                            Array.Copy(points_bytes, _limit, _finalBytes, msgBytes.Length, points_bytes.Length - _limit);
+                            Array.Copy(pointsBytes, _limit, _finalBytes, msgBytes.Length, pointsBytes.Length - _limit);
                         }
                         else // If there are more or 500 points to send
                         {
                             _finalBytes = new byte[msgBytes.Length + 8000];
                             Array.Copy(msgBytes, 0, _finalBytes, 0, msgBytes.Length);
-                            Array.Copy(points_bytes, _limit, _finalBytes, msgBytes.Length, 8000);
+                            Array.Copy(pointsBytes, _limit, _finalBytes, msgBytes.Length, 8000);
                         }
                         
                         try
@@ -159,7 +166,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         }
                         catch (Exception e)
                         {
-
                             var exceptionMessage = "Error sending data to " + cm.ReplyIpAddress.ToString() + " " + e.Message;
                             Console.WriteLine(exceptionMessage);
                         }
@@ -176,7 +182,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             foreach (CloudMessage cm in todelete)
             {
                 PendingRequests.Remove(cm);
-
             };
         }
 
@@ -184,6 +189,5 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         {
             if (_udpClient != null) _udpClient.Close();
         }
-
     }
 }

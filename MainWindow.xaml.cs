@@ -443,12 +443,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     bodyFrame.GetAndRefreshBodyData(this._bodies);
                     dataReceived = true;
                 }
-                
             }
 
             if (dataReceived)
             {
-
                 NumberOfBodies = 0;
                 List<Microsoft.Kinect.Body> bodiesToSend = new List<Body>();
 
@@ -456,15 +454,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 {
                     // Draw a transparent background to set the render size
                     dc.DrawRectangle(Brushes.White, null, new Rect(0.0, 0.0, this._displayWidth, this.displayHeight));
-
-                    
-
                     int penIndex = 0;
                     foreach (Body body in this._bodies)
                     {
                         Pen drawPen = this.bodyColors[penIndex++];
-
-                        
 
                         if (body.IsTracked)
                         {
@@ -503,28 +496,31 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                     // prevent drawing outside of our render area
                     this.drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this._displayWidth, this.displayHeight));
-
-
+                    
                     BodiesMessage message = new BodiesMessage(bodiesToSend.ToArray(), JointsConfidenceWeight);
                     _udp.Send(message.Message);
                 }
             }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
             _points = new List<byte>(); // TMA: Clean the Array List at each frame
             if (_udpListener.PendingRequests.Count > 0 || _udpListener.Clients.Count > 0)
             {
 
-                int depthWidth = 0;
+                int depthWidth  = 0;
                 int depthHeight = 0;
 
-                int colorWidth = 0;
+                int colorWidth  = 0;
                 int colorHeight = 0;
 
-                int bodyIndexWidth = 0;
+                int bodyIndexWidth  = 0;
                 int bodyIndexHeight = 0;
 
                 bool multiSourceFrameProcessed = false;
@@ -597,19 +593,18 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     }
                 }
 
-
-
                 // we got all frames
                 if (multiSourceFrameProcessed && depthFrameProcessed && colorFrameProcessed && bodyIndexFrameProcessed)
                 {
                     int step = int.Parse(samplingTextBox.Text);
                     int oldstep = step; // TMA: Save the input sampling. If you want detail, after you get out of the detail zone update the step with this value.
-                    this.coordinateMapper.MapDepthFrameToColorSpace(this.depthFrameData, this.colorPoints);
+
+                    this.coordinateMapper.MapDepthFrameToColorSpace( this.depthFrameData, this.colorPoints);
                     this.coordinateMapper.MapDepthFrameToCameraSpace(this.depthFrameData, this.cameraPoints);
-                    
+                 
                     _headPos.Clear(); // TMA: Clear all the heads from previous frame.
                     _handPos.Clear(); // TMA: Clear all the hands from previous frame.
-                    
+
                     bool? a = none.IsChecked; // TMA: Is it 'None'?
                     bool bnone = a != null ? (bool)a : false;
                     bool bheads = false, bhands = false, bVR = false;
@@ -731,7 +726,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                             hires = false;
                                         }
                                     }
-
                                     else if (CheckStep(x, y, step))
                                     {
                                         toadd = true;
