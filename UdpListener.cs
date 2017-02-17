@@ -80,6 +80,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         {
             List<CloudMessage> todelete = new List<CloudMessage>();
+            List<TcpSender> todeleteSenders = null;
             for (int i = 0; i < PendingRequests.Count; i++)
             {
                 
@@ -93,6 +94,19 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             cm.Port == cm2.Port)
                             todelete.Add(cm2);
                     }
+                    foreach (TcpSender c in Clients)
+                    {
+                        if(c._address == cm.ReplyIpAddress.ToString())
+                        {
+                            if (todeleteSenders == null) todeleteSenders = new List<TcpSender>();
+                            todeleteSenders.Add(c);
+                        }
+                    }
+                    if(todeleteSenders != null)
+                    {
+                        foreach (TcpSender c in todeleteSenders) Clients.Remove(c);
+                    }
+
                     continue;
                 }
                 //Failsafe
@@ -140,9 +154,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         
                         try
                         {
-                            System.Threading.Thread.Sleep(2);
+                            System.Threading.Thread.Sleep(10);
                             _udpClient.Send(_finalBytes, _finalBytes.Length, ep); // Send the bytes
-
                         }
                         catch (Exception e)
                         {
@@ -153,9 +166,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     }
 
                     msgBytes = Encoding.ASCII.GetBytes(msg); // Convert to bytes
-
-                    System.Threading.Thread.Sleep(2);
+                    System.Threading.Thread.Sleep(10);
                     _udpClient.Send(msgBytes, msgBytes.Length, ep); // Send the bytes
+
                     todelete.Add(cm);
                 }
             }
@@ -163,8 +176,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             foreach (CloudMessage cm in todelete)
             {
                 PendingRequests.Remove(cm);
-            }
-            MessageCount++;
+
+            };
         }
 
         public void OnApplicationQuit()
