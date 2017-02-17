@@ -521,7 +521,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             points = new List<byte>(); // TMA: Clean the Array List at each frame
             if (udpListener.PendingRequests.Count > 0 || udpListener.Clients.Count > 0)
             {
-                
+
                 int depthWidth = 0;
                 int depthHeight = 0;
 
@@ -613,7 +613,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                     head_pos.Clear(); // TMA: Clear all the heads from previous frame.
                     hand_pos.Clear(); // TMA: Clear all the hands from previous frame.
-                
+
                     bool? a = none.IsChecked; // TMA: Is it 'None'?
                     bool bnone = a != null ? (bool)a : false;
                     bool bheads = false, bhands = false, bVR = false;
@@ -656,9 +656,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     int st = bnone ? step : 1;
                     // loop over each row and column of the depth
 
-                    uint messageCount = udpListener.messageCount;
-                    byte[] id =  BitConverter.GetBytes(messageCount);
-                    points.AddRange(id);
+                  
                     for (int y = 0; y < depthHeight; y += st)
                     {
                         for (int x = 0; x < depthWidth; x += st)
@@ -670,57 +668,59 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             byte player = this.bodyIndexFrameData[depthIndex];
                             bool? c = onlyPlayers.IsChecked;
                             bool val = c != null ? (bool)c : false;
-                                // if we're tracking a player for the current pixel, sets its color and alpha to full
-                             if (!val || (val && player != 0xff))
-                             {
-                                
-                                 CameraSpacePoint p = this.cameraPoints[depthIndex];
+                            // if we're tracking a player for the current pixel, sets its color and alpha to full
+                            if (!val || (val && player != 0xff))
+                            {
 
-                                 // retrieve the depth to color mapping for the current depth pixel
-                                 ColorSpacePoint colorPoint = this.colorPoints[depthIndex];
+                                CameraSpacePoint p = this.cameraPoints[depthIndex];
 
-                                 byte r = 0; byte g = 0; byte b = 0;
+                                // retrieve the depth to color mapping for the current depth pixel
+                                ColorSpacePoint colorPoint = this.colorPoints[depthIndex];
 
-                                 // make sure the depth pixel maps to a valid point in color space
-                                 int colorX = (int)Math.Floor(colorPoint.X + 0.5);
-                                 int colorY = (int)Math.Floor(colorPoint.Y + 0.5);
-                                 if ((colorX >= 0) && (colorX < colorWidth) && (colorY >= 0) && (colorY < colorHeight))
-                                 {
-                                     // calculate index into color array
-                                     int colorIndex = ((colorY * colorWidth) + colorX) * this.bytesPerPixel;
+                                byte r = 0; byte g = 0; byte b = 0;
 
-                                     // set source for copy to the color pixel
-                                     int displayIndex = depthIndex * this.bytesPerPixel;
+                                // make sure the depth pixel maps to a valid point in color space
+                                int colorX = (int)Math.Floor(colorPoint.X + 0.5);
+                                int colorY = (int)Math.Floor(colorPoint.Y + 0.5);
+                                if ((colorX >= 0) && (colorX < colorWidth) && (colorY >= 0) && (colorY < colorHeight))
+                                {
+                                    // calculate index into color array
+                                    int colorIndex = ((colorY * colorWidth) + colorX) * this.bytesPerPixel;
 
-                                     b = this.colorFrameData[colorIndex++];
-                                     g = this.colorFrameData[colorIndex++];
-                                     r = this.colorFrameData[colorIndex++];
+                                    // set source for copy to the color pixel
+                                    int displayIndex = depthIndex * this.bytesPerPixel;
 
-                                 }
+                                    b = this.colorFrameData[colorIndex++];
+                                    g = this.colorFrameData[colorIndex++];
+                                    r = this.colorFrameData[colorIndex++];
 
-                                 if (!(Double.IsInfinity(p.X)) && !(Double.IsInfinity(p.Y)) && !(Double.IsInfinity(p.Z)))
-                                 {
+                                }
+
+                                if (!(Double.IsInfinity(p.X)) && !(Double.IsInfinity(p.Y)) && !(Double.IsInfinity(p.Z)))
+                                {
                                     bool toadd = false;
                                     bool hires = false;
                                     // TMA: Update the step if looking for detail
                                     if (bheads && checkHead(p.X, p.Y, p.Z)) // Check if the point belongs to the head detail zone
                                     {
-                                        if (checkStep(x, y, step / 2)) { 
+                                        if (checkStep(x, y, step / 2))
+                                        {
                                             toadd = true;
                                             hires = true;
                                         }
                                     }
-                                    else if(bhands && checkHands(p.X, p.Y, p.Z) ) // Check if the point belongs to any hands detail zone
+                                    else if (bhands && checkHands(p.X, p.Y, p.Z)) // Check if the point belongs to any hands detail zone
                                     {
-                                        if(checkStep(x, y, step / 2))
+                                        if (checkStep(x, y, step / 2))
                                         {
                                             toadd = true;
                                             hires = true;
-                                        } 
+                                        }
                                     }
                                     else if (bVR)
                                     {
-                                        if (checkHands(p.X, p.Y, p.Z) && checkStep(x, y, step / 2)) {
+                                        if (checkHands(p.X, p.Y, p.Z) && checkStep(x, y, step / 2))
+                                        {
                                             toadd = true;
                                             hires = true;
                                         }
@@ -734,12 +734,13 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                             hires = false;
                                         }
                                     }
-                                    else if(checkStep(x, y, step))
+                                    else if (checkStep(x, y, step))
                                     {
                                         toadd = true;
                                         hires = false;
                                     }
-                                    if (toadd) { 
+                                    if (toadd)
+                                    {
                                         // TMA: Convert the floats to bytes.
                                         xv = BitConverter.GetBytes(p.X); // x
                                         yv = BitConverter.GetBytes(p.Y); // y
@@ -759,7 +760,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                         points.Add(b); // b
                                         int i = 0;
                                         if (hires)
-                                             points.Add((byte)1); // Mark as a HighRes point
+                                            points.Add((byte)1); // Mark as a HighRes point
                                         else
                                             points.Add((byte)0); // Mark as a LowRes point
                                     }
@@ -767,17 +768,34 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             }
                         }
                     }
-                    if(points.Count > 0) {
-
+                    if (points.Count > 0)
+                    {
+                        List<TcpSender> todelete = null;
                         foreach (TcpSender client in udpListener.Clients)
                         {
-                            client.write(points.ToArray());
+                            if (client.Connected) { 
+                                client.sendCloud(points.ToArray(), udpListener.messageCount);
+                            }
+                            else
+                            {
+                                if (todelete == null) todelete = new List<TcpSender>();
+                                todelete.Add(client);
+                            }
                         }
 
+                        if(todelete != null)
+                        {
+                            foreach(TcpSender c in todelete)
+                            {
+                                udpListener.Clients.Remove(c);
+                            }
+                        }
                         if (udpListener.PendingRequests.Count > 0)
-                            points.RemoveRange(0, 4);
+                        {
                             udpListener.processRequests(points);
-                        
+                        }
+
+                        udpListener.messageCount++;
                     }
                 }
             }
