@@ -163,8 +163,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// Current status text to display
         /// </summary>
         private string statusText = null;
-
-
+        
         private int numberOfBodies;
 
         private string udpPort;
@@ -766,7 +765,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         foreach (TcpSender client in _udpListener.Clients)
                         {
                             if (client.Connected) { 
-                                client.sendCloud(_points.ToArray(), _udpListener.MessageCount);
+                                client.SendCloud(_points.ToArray(), _udpListener.MessageCount);
                             }
                             else
                             {

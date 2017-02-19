@@ -8,21 +8,21 @@ using System.Threading;
 
 namespace Microsoft.Samples.Kinect.BodyBasics
 {
-
-
     public class UdpBroadcast
     {
-        private string _address;
-        private int _port;
-
         private IPEndPoint _remoteEndPoint;
+
         private UdpClient _udp;
-        private int _sendRate;
 
         private DateTime _lastSent;
 
-        private bool _streaming = false;
+        private int _port;
+        private int _sendRate;
 
+        private string _address;
+
+        private bool _streaming = false;
+        
         public UdpBroadcast(int port, int sendRate = 100)
         {
             _lastSent = DateTime.Now;

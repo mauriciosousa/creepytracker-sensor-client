@@ -7,16 +7,28 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 {
     public class TcpSender
     {
-        private bool _connected;
-        public bool Connected { get { return _connected; } }
-
         private TcpClient _client;
+
         private Stream _stream;
 
-        public string _address;
-        private int _port;
-        private byte[] sendHeaderBuffer;
         private ASCIIEncoding _encoder;
+
+        private byte[] sendHeaderBuffer;
+
+        private int _port;
+
+        public string _address;
+
+        private bool _connected;
+
+        public bool Connected
+        {
+            get
+            {
+                return _connected; 
+                
+            }
+        }
 
         public TcpSender()
         {
@@ -24,7 +36,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             sendHeaderBuffer = new byte[8];
         }
 
-        public void connect(string address, int port)
+        public void Connect(string address, int port)
         {
             _address = address;
             _port = port;
@@ -45,8 +57,22 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             catch (Exception e)
             {
                 _connected = false;
-                Console.WriteLine("Unable to connect");
+                const string unableToConnect = "Unable to connect";
+                Console.WriteLine(unableToConnect);
             }
+        }
+
+        public void SendCloud(byte[] frame, uint messageCount)
+        {
+            byte[] id    = BitConverter.GetBytes(messageCount);
+            byte[] count = BitConverter.GetBytes(frame.Length);
+
+            Array.Copy(  id,  0, sendHeaderBuffer, 0, 4);
+            Array.Copy(count, 0, sendHeaderBuffer, 4, 4);
+
+            write(sendHeaderBuffer);
+            write(frame);
+
         }
 
         public void write(string line)
@@ -55,16 +81,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             this.write(ba);
         }
 
-        public void sendCloud(byte[] frame, uint messageCount)
-        {
-            byte[] id = BitConverter.GetBytes(messageCount);
-            byte[] count = BitConverter.GetBytes(frame.Length);
-            Array.Copy(id, 0, sendHeaderBuffer, 0, 4);
-            Array.Copy(count, 0, sendHeaderBuffer, 4, 4);
-            write(sendHeaderBuffer);
-            write(frame);
-
-        }
         public void write(byte[] frame)
         {
 
@@ -77,13 +93,13 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 catch(Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    close();
+                    Close();
                     _connected = false;
                 }
             }
         }
 
-        public void close()
+        public void Close()
         {
             _client.Close();
         }

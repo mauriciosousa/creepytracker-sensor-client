@@ -125,7 +125,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                if(cm.Mode == 1)
                 {
                     TcpSender newclient = new TcpSender();
-                    newclient.connect(cm.ReplyIpAddress.ToString(), cm.Port);
+                    newclient.Connect(cm.ReplyIpAddress.ToString(), cm.Port);
                     Clients.Add(newclient);
                     todelete.Add(cm);
                 }
