@@ -16,7 +16,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         public const char SET = '=';
     }
 
-
     public enum BodyPropertiesTypes
     {
         UID,

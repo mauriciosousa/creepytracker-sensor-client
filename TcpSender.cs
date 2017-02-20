@@ -72,7 +72,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
             write(sendHeaderBuffer);
             write(frame);
-
         }
 
         public void write(string line)

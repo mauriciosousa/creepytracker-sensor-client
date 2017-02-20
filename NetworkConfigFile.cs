@@ -10,6 +10,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private string _port = "33333";
 
         private Dictionary<string, int> _jointConfidenceWeight;
+
         public Dictionary<string, int> JointConfidenceWeight
         {
             get
@@ -25,7 +26,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 _jointConfidenceWeight[j.ToString()] = 1;
             }
-
 
             if (File.Exists(filename))
             {
@@ -45,6 +45,17 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             }
         }
 
-        public string Port { get { return _port; } internal set { _port = value; } }
+        public string Port
+        {
+            get
+            {
+                return _port;
+            }
+
+            internal set
+            {
+                _port = value;
+            }
+        }
     }
 }

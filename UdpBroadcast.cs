@@ -40,7 +40,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 _udp = new UdpClient();
                 _streaming = true;
             }
-            catch (Exception e) { }
+            catch (Exception e)
+            {
+                // ignored
+            }
         }
 
         public void Send(string line)

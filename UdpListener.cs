@@ -8,7 +8,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 {
     public class UdpListener
     {
-        //public List<CloudMessage> PendingRequests;
+        // public List<CloudMessage> PendingRequests;
+
         public List<CloudMessage> PendingRequests;
 
         public List<TcpSender> Clients;
