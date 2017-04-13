@@ -307,7 +307,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             NetworkConfigFile f = new NetworkConfigFile("network.conf");
             UdpPort = f.Port;
             JointsConfidenceWeight = f.JointConfidenceWeight;
-            udpListener = new UdpListener(int.Parse(UdpPort) + 1);
+            udpListener = new UdpListener(int.Parse(f.ListenPort));
             udpListener.udpRestart();
 
 
