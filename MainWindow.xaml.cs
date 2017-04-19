@@ -985,8 +985,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             udp.reset(int.Parse(UdpPort));
             udpListener.Port = int.Parse(UdpPort)+1;
             udpListener.udpRestart();
-            expander.IsExpanded = false;
-            
+            expander.IsExpanded = false;   
         }
     }
 }

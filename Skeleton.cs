@@ -79,12 +79,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             return confidence;
         }
 
-        internal static string convertVectorToStringRPC(Microsoft.Kinect.CameraSpacePoint v)
+        internal static string convertVectorToStringRPC(CameraSpacePoint v)
         {
             return "" + Math.Round(v.X, 3) + MessageSeparators.L3 + Math.Round(v.Y, 3) + MessageSeparators.L3 + Math.Round(v.Z, 3);
         }
 
-        internal static string convertCameraDepthPointToStringRPC(Microsoft.Kinect.DepthSpacePoint p)
+        internal static string convertCameraDepthPointToStringRPC(DepthSpacePoint p)
         {
             return "" + Math.Round(p.X, 3) + MessageSeparators.L3 + Math.Round(p.Y, 3) + MessageSeparators.L3 + 0.0;
         }

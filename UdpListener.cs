@@ -24,7 +24,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             set { _port = value; }
         }
 
-        
         public UdpListener(int port)
         {
             _port = port;
@@ -39,11 +38,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             }
 
             PendingRequests = new List<CloudMessage>();
-
             _anyIP = new IPEndPoint(IPAddress.Any, _port);
-
             _udpClient = new UdpClient(_anyIP);
-
             _udpClient.BeginReceive(new AsyncCallback(this.ReceiveCallback), null);
 
             Console.WriteLine("[UDPListener] Receiving in port: " + _port);
@@ -52,7 +48,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         public void ReceiveCallback(IAsyncResult ar)
         {
             Console.WriteLine("[UDPListener] Received request: " + _port);
-            try { 
+            try
+            { 
                 Byte[] receiveBytes = _udpClient.EndReceive(ar, ref _anyIP);
                 string request = Encoding.ASCII.GetString(receiveBytes);
                
@@ -169,7 +166,5 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         {
             if (_udpClient != null) _udpClient.Close();
         }
-
-
     }
 }
