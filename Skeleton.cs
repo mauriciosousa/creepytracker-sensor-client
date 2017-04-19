@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Kinect;
+using System;
 using System.Collections.Generic;
 using Microsoft.Kinect;
 
@@ -26,32 +27,34 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
             Microsoft.Kinect.JointType.SpineMid,
             Microsoft.Kinect.JointType.SpineShoulder
-
         };
         
         private Dictionary<JointType, TrackingState> BodyTrackingStateJoints = new Dictionary<JointType,TrackingState>();
 
         private Dictionary<string, int> _jointsConfidenceWeight;
 
-        public Skeleton(Microsoft.Kinect.Body body, Dictionary<string, int> jointsConfidenceWeight)
+        public Skeleton(Body body, Dictionary<string, int> jointsConfidenceWeight)
         {
             SetTrackingStateJoints(body);
 
             this._jointsConfidenceWeight = jointsConfidenceWeight;
 
-            Message = ""
+            // get the coordinate mapper
+            CoordinateMapper coordinateMapper = KinectSensor.GetDefault().CoordinateMapper;
+
+            Message = ""  
             + BodyPropertiesTypes.UID.ToString() + MessageSeparators.SET + body.TrackingId
+
             + MessageSeparators.L2 + BodyPropertiesTypes.Confidence.ToString()          + MessageSeparators.SET + BodyConfidence(body)
             + MessageSeparators.L2 + BodyPropertiesTypes.HandLeftState.ToString()       + MessageSeparators.SET + body.HandLeftState
             + MessageSeparators.L2 + BodyPropertiesTypes.HandLeftConfidence.ToString()  + MessageSeparators.SET + body.HandLeftConfidence
             + MessageSeparators.L2 + BodyPropertiesTypes.HandRightState.ToString()      + MessageSeparators.SET + body.HandRightState
-            + MessageSeparators.L2 + BodyPropertiesTypes.HandRightConfidence.ToString() + MessageSeparators.SET + body.HandRightConfidence;
-            
-            //body.HandLeftState = HandState.Closed;
-            //body.HandLeftState = HandState.Open;
-            //body.HandLeftState = HandState.Unknown;
+            + MessageSeparators.L2 + BodyPropertiesTypes.HandRightConfidence.ToString() + MessageSeparators.SET + body.HandRightConfidence //;
 
-            foreach (Microsoft.Kinect.JointType j in Enum.GetValues(typeof(Microsoft.Kinect.JointType)))
+            + MessageSeparators.L2 + HandScreenSpace.HandLeftPosition.ToString()        + MessageSeparators.SET + ConvertCameraDepthPointToStringRpc(coordinateMapper.MapCameraPointToDepthSpace(body.Joints[JointType.HandLeft].Position ))
+            + MessageSeparators.L2 + HandScreenSpace.HandRightPosition.ToString()       + MessageSeparators.SET + ConvertCameraDepthPointToStringRpc(coordinateMapper.MapCameraPointToDepthSpace(body.Joints[JointType.HandRight].Position));
+
+            foreach (JointType j in Enum.GetValues(typeof(JointType)))
             {
                 Message += "" + MessageSeparators.L2 + j.ToString() + MessageSeparators.SET + ConvertVectorToStringRpc(body.Joints[j].Position);
             }
@@ -88,11 +91,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         public string Message { get; internal set; }   
 
-        private int BodyConfidence(Microsoft.Kinect.Body body)
+        private int BodyConfidence(Body body)
         {
             int confidence = 0;
 
-            foreach (Microsoft.Kinect.Joint j in body.Joints.Values)
+            foreach (Joint j in body.Joints.Values)
             {
                 if (_bodyConfidenceAcceptedJoints.Contains(j.JointType) && j.TrackingState == Microsoft.Kinect.TrackingState.Tracked)
                 {
@@ -116,16 +119,68 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             }
             return confidence;
         }
-
+        
+        // internal static string convertVectorToStringRPC(CameraSpacePoint v)
         internal static string ConvertVectorToStringRpc(Microsoft.Kinect.CameraSpacePoint v)
         {
             return "" + Math.Round(v.X, 3) + MessageSeparators.L3 + Math.Round(v.Y, 3) + MessageSeparators.L3 + Math.Round(v.Z, 3);
+        }
+
+        internal static string ConvertCameraDepthPointToStringRpc(DepthSpacePoint p)
+        {
+            return "" + Math.Round(p.X, 3) + MessageSeparators.L3 + Math.Round(p.Y, 3) + MessageSeparators.L3 + 0.0;
         }
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////
 /*
-    
+      //private List<JointType> BodyConfidenceAcceptedJoints = new List<JointType>()
+        //{
+        //    JointType.Head,
+
+        //    JointType.ShoulderLeft,
+        //    JointType.ElbowLeft,
+        //    JointType.HandLeft,
+        //    JointType.HipLeft,
+        //    JointType.KneeLeft,
+        //    JointType.AnkleLeft,
+
+        //    JointType.ShoulderRight,
+        //    JointType.ElbowRight,
+        //    JointType.HandRight,
+        //    JointType.HipRight,
+        //    JointType.KneeRight,
+        //    JointType.AnkleRight,
+
+        //    JointType.SpineMid,
+        //    JointType.SpineShoulder
+
+
+    ////////////////////////////////////////////////////////////////////////////////////
+            //body.HandLeftState = HandState.Closed;
+            //body.HandLeftState = HandState.Open;
+            //body.HandLeftState = HandState.Unknown;
+
+            //foreach (Microsoft.Kinect.JointType j in Enum.GetValues(typeof(Microsoft.Kinect.JointType)))
+            //=======
+            //            + MessageSeparators.L2 + BodyPropertiesTypes.Confidence.ToString() + MessageSeparators.SET + BodyConfidence(body)
+            //            + MessageSeparators.L2 + BodyPropertiesTypes.HandLeftState.ToString() + MessageSeparators.SET + body.HandLeftState
+            //            + MessageSeparators.L2 + BodyPropertiesTypes.HandLeftConfidence.ToString() + MessageSeparators.SET + body.HandLeftConfidence
+            //            + MessageSeparators.L2 + BodyPropertiesTypes.HandRightState.ToString() + MessageSeparators.SET + body.HandRightState
+            //            + MessageSeparators.L2 + BodyPropertiesTypes.HandRightConfidence.ToString() + MessageSeparators.SET + body.HandRightConfidence
+            //            + MessageSeparators.L2 + HandScreenSpace.HandLeftPosition.ToString() + MessageSeparators.SET + convertCameraDepthPointToStringRPC(coordinateMapper.MapCameraPointToDepthSpace(body.Joints[JointType.HandLeft].Position))
+            //            + MessageSeparators.L2 + HandScreenSpace.HandRightPosition.ToString() + MessageSeparators.SET + convertCameraDepthPointToStringRPC(coordinateMapper.MapCameraPointToDepthSpace(body.Joints[JointType.HandRight].Position));
+
+
+
+
+
+
+
+
+
+
+
     ////////////////////////////////////////////////////////////////////////////////////
     //private  List<TrackingState> BodyTrackingStateJoints = new List<TrackingState>()
     //{
@@ -210,3 +265,4 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     BodyTrackingStateJoints.Add(body.Joints[JointType.ThumbLeft].TrackingState);
 */
 
+//}

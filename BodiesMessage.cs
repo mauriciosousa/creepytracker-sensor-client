@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Kinect = Microsoft.Kinect;
+﻿using System.Collections.Generic;
 using System;
-using System.Linq;
 
 namespace Microsoft.Samples.Kinect.BodyBasics
 {
@@ -15,7 +12,13 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         public const char L4 = '?'; // -> Extra
         public const char SET = '=';
     }
-
+    
+    public enum HandScreenSpace
+    {
+        HandLeftPosition,
+        HandRightPosition
+    }
+    
     public enum BodyPropertiesTypes
     {
         UID,
@@ -25,7 +28,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         HandRightConfidence,
         Confidence
     }
-    
+
     public class BodiesMessage
     {
         private object _bodies;
@@ -44,7 +47,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 }
             }
         }
-
         public string Message { get; private set; }
     }
 }

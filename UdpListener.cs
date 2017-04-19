@@ -36,7 +36,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 _port = value;
             }
         }
-        
+
         public UdpListener(int port)
         {
             _port = port;
@@ -52,10 +52,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             }
 
             PendingRequests = new List<CloudMessage>();
-
-            _anyIp = new IPEndPoint(IPAddress.Any, _port);
-
+            _anyIp     = new IPEndPoint(IPAddress.Any, _port);
             _udpClient = new UdpClient(_anyIp);
+
+            //_anyIP = new IPEndPoint(IPAddress.Any, _port);
+            //_udpClient = new UdpClient(_anyIP);
 
             _udpClient.BeginReceive(new AsyncCallback(this.ReceiveCallback), null);
 
@@ -67,8 +68,14 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         {
             var format = "[UDPListener] Received request: " + _port;
             Console.WriteLine(format);
-            try { 
+            try
+            { 
                 Byte[] receiveBytes = _udpClient.EndReceive(ar, ref _anyIp);
+            //Console.WriteLine("[UDPListener] Received request: " + _port);
+            //try
+            //{ 
+            //    Byte[] receiveBytes = _udpClient.EndReceive(ar, ref _anyIP);
+
                 string request = Encoding.ASCII.GetString(receiveBytes);
                
                 string[] msg = request.Split(MessageSeparators.L0);
