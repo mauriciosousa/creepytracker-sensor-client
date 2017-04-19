@@ -9,15 +9,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
     using System.Windows;
     using System.Windows.Media;
-    using System.Windows.Media.Imaging;
-    using System.Text;
     using Microsoft.Kinect;
-
 
     /// <summary>
     /// Interaction logic for MainWindow
@@ -304,6 +298,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             NetworkConfigFile f = new NetworkConfigFile("network.conf");
             UdpPort = f.Port;
             JointsConfidenceWeight = f.JointConfidenceWeight;
+
             _udpListener = new UdpListener(int.Parse(UdpPort) + 1);
             _udpListener.UdpRestart();
         }
@@ -447,12 +442,14 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             if (dataReceived)
             {
                 NumberOfBodies = 0;
-                List<Microsoft.Kinect.Body> bodiesToSend = new List<Body>();
+                List<Body> bodiesToSend = new List<Body>();
 
                 using (DrawingContext dc = this.drawingGroup.Open())
                 {
                     // Draw a transparent background to set the render size
+
                     dc.DrawRectangle(Brushes.White, null, new Rect(0.0, 0.0, this._displayWidth, this.displayHeight));
+
                     int penIndex = 0;
                     foreach (Body body in this._bodies)
                     {
@@ -488,8 +485,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                             this.DrawHand(body.HandLeftState,  jointPoints[JointType.HandLeft],  dc);
                             this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
-
-                            
                         }
                     }
 
@@ -501,12 +496,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 }
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
             _points = new List<byte>(); // TMA: Clean the Array List at each frame
@@ -622,7 +612,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             {
                                 foreach (Joint j in body.Joints.Values)
                                 {
-                                    if ((bheads || bVR) && j.JointType == Microsoft.Kinect.JointType.Head) // TMA: If it's 'Heads'
+                                    if ((bheads || bVR) && j.JointType == JointType.Head) // TMA: If it's 'Heads'
                                     {
                                         Vector4 newHead = new Vector4();
                                         newHead.X = j.Position.X;
@@ -630,7 +620,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                         newHead.Z = j.Position.Z;
                                         _headPos.Add(newHead); // TMA: Store in the heads vector
                                     }
-                                    else if ((bhands || bVR) && (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)) // TMA: If it's 'Hands'
+                                    else if ((bhands || bVR) && (j.JointType == JointType.HandLeft || j.JointType == JointType.HandRight)) // TMA: If it's 'Hands'
                                     {
                                         Vector4 newHand = new Vector4();
                                         newHand.X = j.Position.X;
@@ -992,7 +982,22 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             _udpListener.Port = int.Parse(UdpPort)+1;
             _udpListener.UdpRestart();
             expander.IsExpanded = false;
-            
         }
     }
 }
+////////////////////////////////////////////////
+/*
+
+        udpListener = new UdpListener(int.Parse(UdpPort) + 1);
+        udpListener.udpRestart();
+           udp.reset(int.Parse(UdpPort));
+        udpListener.Port = int.Parse(UdpPort)+1;
+
+    ////////////////////////////////////////////////
+
+        udpListener.udpRestart();
+        expander.IsExpanded = false;   
+        ////////////////////////////////////////////////
+
+            dc.DrawRectangle(Brushes.White, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+ */

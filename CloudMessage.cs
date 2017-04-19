@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net;
+
 namespace Microsoft.Samples.Kinect.BodyBasics
 {
     public class CloudMessage
@@ -27,7 +24,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         // ReSharper disable once UnusedMember.Global
         public static string CreateMessage(string cloudInfo, uint id)
         {
-            return "CloudMessage" + MessageSeparators.L0 + Environment.MachineName + MessageSeparators.L1 + id+ MessageSeparators.L1 +cloudInfo; 
+            return "CloudMessage" + MessageSeparators.L0 + Environment.MachineName + MessageSeparators.L1 + id + MessageSeparators.L1 + cloudInfo; 
         }
     }
 }
