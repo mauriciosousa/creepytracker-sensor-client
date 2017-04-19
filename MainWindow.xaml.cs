@@ -41,87 +41,87 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <summary>
         /// Brush used for drawing hands that are currently tracked as closed
         /// </summary>
-        private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
+        private readonly Brush _handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
 
         /// <summary>
         /// Brush used for drawing hands that are currently tracked as opened
         /// </summary>
-        private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
+        private readonly Brush _handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
 
         /// <summary>
         /// Brush used for drawing hands that are currently tracked as in lasso (pointer) position
         /// </summary>
-        private readonly Brush handLassoBrush = new SolidColorBrush(Color.FromArgb(128, 0, 0, 255));
+        private readonly Brush _handLassoBrush = new SolidColorBrush(Color.FromArgb(128, 0, 0, 255));
 
         /// <summary>
         /// Brush used for drawing joints that are currently tracked
         /// </summary>
-        private readonly Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 68, 192, 68));
+        private readonly Brush _trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 68, 192, 68));
 
         /// <summary>
         /// Brush used for drawing joints that are currently inferred
         /// </summary>        
-        private readonly Brush inferredJointBrush = Brushes.Yellow;
+        private readonly Brush _inferredJointBrush = Brushes.Yellow;
 
         /// <summary>
         /// Pen used for drawing bones that are currently inferred
         /// </summary>        
-        private readonly Pen inferredBonePen = new Pen(Brushes.Gray, 1);
+        private readonly Pen _inferredBonePen = new Pen(Brushes.Gray, 1);
 
         /// <summary>
         /// Drawing group for body rendering output
         /// </summary>
-        private DrawingGroup drawingGroup;
+        private DrawingGroup _drawingGroup;
 
         /// <summary>
         /// Drawing image that we will display
         /// </summary>
-        private DrawingImage imageSource;
+        private DrawingImage _imageSource;
 
         /// <summary>
         /// Active Kinect sensor
         /// </summary>
-        private KinectSensor kinectSensor = null;
+        private KinectSensor _kinectSensor = null;
 
         /// <summary>
         /// Coordinate mapper to map one type of point to another
         /// </summary>
-        private CoordinateMapper coordinateMapper = null;
+        private CoordinateMapper _coordinateMapper = null;
 
         /// <summary>
         /// Reader for body frames
         /// </summary>
-        private BodyFrameReader bodyFrameReader = null;
+        private BodyFrameReader _bodyFrameReader = null;
         
         /// <summary>
         /// Reader for depth/color/body index frames
         /// </summary>
-        private MultiSourceFrameReader multiFrameSourceReader = null;
+        private MultiSourceFrameReader _multiFrameSourceReader = null;
 
         /// <summary>
         /// Intermediate storage for receiving depth frame data from the sensor
         /// </summary>
-        private ushort[] depthFrameData = null;
+        private ushort[] _depthFrameData = null;
 
         /// <summary>
         /// Intermediate storage for receiving color frame data from the sensor
         /// </summary>
-        private byte[] colorFrameData = null;
+        private byte[] _colorFrameData = null;
 
         /// <summary>
         /// Intermediate storage for the depth to color mapping
         /// </summary>
-        private ColorSpacePoint[] colorPoints = null;
+        private ColorSpacePoint[] _colorPoints = null;
 
         /// <summary>
         /// Intermediate storage for the depth to color mapping
         /// </summary>
-        private CameraSpacePoint[] cameraPoints = null;
+        private CameraSpacePoint[] _cameraPoints = null;
 
         /// <summary>
         /// Size of the RGB pixel in the bitmap
         /// </summary>
-        private readonly int bytesPerPixel = (PixelFormats.Bgr32.BitsPerPixel + 7) / 8;
+        private readonly int _bytesPerPixel = (PixelFormats.Bgr32.BitsPerPixel + 7) / 8;
 
         /// <summary>
         /// Array for the bodies
@@ -184,45 +184,45 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         public MainWindow()
         {
             // one sensor is currently supported
-            this.kinectSensor = KinectSensor.GetDefault();
+            this._kinectSensor = KinectSensor.GetDefault();
 
             // get the coordinate mapper
-            this.coordinateMapper = this.kinectSensor.CoordinateMapper;
+            this._coordinateMapper = this._kinectSensor.CoordinateMapper;
 
             // get the depth (display) extents
-            FrameDescription frameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
+            FrameDescription frameDescription = this._kinectSensor.DepthFrameSource.FrameDescription;
 
             // get size of joint space
             this._displayWidth = frameDescription.Width;
             this.displayHeight = frameDescription.Height;
 
             // open the reader for the body frames
-            this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
+            this._bodyFrameReader = this._kinectSensor.BodyFrameSource.OpenReader();
 
             // open multiframereader for depth, color, and bodyindex frames
-            this.multiFrameSourceReader = this.kinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Depth | FrameSourceTypes.Color| FrameSourceTypes.BodyIndex);
+            this._multiFrameSourceReader = this._kinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Depth | FrameSourceTypes.Color| FrameSourceTypes.BodyIndex);
 
             // wire handler for frames arrival
-            this.multiFrameSourceReader.MultiSourceFrameArrived += this.Reader_MultiSourceFrameArrived;
+            this._multiFrameSourceReader.MultiSourceFrameArrived += this.Reader_MultiSourceFrameArrived;
 
-            FrameDescription depthFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
+            FrameDescription depthFrameDescription = this._kinectSensor.DepthFrameSource.FrameDescription;
             int depthWidth = depthFrameDescription.Width;
             int depthHeight = depthFrameDescription.Height;
 
             // allocate space to put the pixels being received and converted
-            this.depthFrameData = new ushort[depthWidth * depthHeight];
-            this.colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
-            this.cameraPoints = new CameraSpacePoint[depthWidth * depthHeight];
+            this._depthFrameData = new ushort[depthWidth * depthHeight];
+            this._colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
+            this._cameraPoints = new CameraSpacePoint[depthWidth * depthHeight];
             this._bodyIndexFrameData = new byte[depthWidth * depthHeight];
 
             // get FrameDescription from ColorFrameSource
-            FrameDescription colorFrameDescription = this.kinectSensor.ColorFrameSource.FrameDescription;
+            FrameDescription colorFrameDescription = this._kinectSensor.ColorFrameSource.FrameDescription;
 
             int colorWidth = colorFrameDescription.Width;
             int colorHeight = colorFrameDescription.Height;
 
             // allocate space to put the pixels being received
-            this.colorFrameData = new byte[colorWidth * colorHeight * this.bytesPerPixel];
+            this._colorFrameData = new byte[colorWidth * colorHeight * this._bytesPerPixel];
 
             // a bone defined as a line between two joints
             this._bones = new List<Tuple<JointType, JointType>>();
@@ -272,20 +272,20 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             this.bodyColors.Add(new Pen(Brushes.Violet, 6));
 
             // set IsAvailableChanged event notifier
-            this.kinectSensor.IsAvailableChanged += this.Sensor_IsAvailableChanged;
+            this._kinectSensor.IsAvailableChanged += this.Sensor_IsAvailableChanged;
 
             // open the sensor
-            this.kinectSensor.Open();
+            this._kinectSensor.Open();
 
             // set the status text
-            this.StatusText = this.kinectSensor.IsAvailable ? Properties.Resources.RunningStatusText
+            this.StatusText = this._kinectSensor.IsAvailable ? Properties.Resources.RunningStatusText
                                                             : Properties.Resources.NoSensorStatusText;
 
             // Create the drawing group we'll use for drawing
-            this.drawingGroup = new DrawingGroup();
+            this._drawingGroup = new DrawingGroup();
 
             // Create an image source that we can use in our image control
-            this.imageSource = new DrawingImage(this.drawingGroup);
+            this._imageSource = new DrawingImage(this._drawingGroup);
 
             this.numberOfBodies = 0;
 
@@ -316,7 +316,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         {
             get
             {
-                return this.imageSource;
+                return this._imageSource;
             }
         }
 
@@ -382,9 +382,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         {
             _udp = new UdpBroadcast(int.Parse(UdpPort));
 
-            if (this.bodyFrameReader != null)
+            if (this._bodyFrameReader != null)
             {
-                this.bodyFrameReader.FrameArrived += this.Reader_FrameArrived;
+                this._bodyFrameReader.FrameArrived += this.Reader_FrameArrived;
             }
         }
 
@@ -395,17 +395,17 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <param name="e">event arguments</param>
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if (this.bodyFrameReader != null)
+            if (this._bodyFrameReader != null)
             {
                 // BodyFrameReader is IDisposable
-                this.bodyFrameReader.Dispose();
-                this.bodyFrameReader = null;
+                this._bodyFrameReader.Dispose();
+                this._bodyFrameReader = null;
             }
 
-            if (this.kinectSensor != null)
+            if (this._kinectSensor != null)
             {
-                this.kinectSensor.Close();
-                this.kinectSensor = null;
+                this._kinectSensor.Close();
+                this._kinectSensor = null;
             }
             if (this._udpListener != null)
             {
@@ -445,7 +445,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 NumberOfBodies = 0;
                 List<Body> bodiesToSend = new List<Body>();
 
-                using (DrawingContext dc = this.drawingGroup.Open())
+                using (DrawingContext dc = this._drawingGroup.Open())
                 {
                     // Draw a transparent background to set the render size
 
@@ -478,7 +478,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     position.Z = InferredZPositionClamp;
                                 }
 
-                                DepthSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToDepthSpace(position);
+                                DepthSpacePoint depthSpacePoint = this._coordinateMapper.MapCameraPointToDepthSpace(position);
                                 jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
                             }
 
@@ -490,7 +490,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     }
 
                     // prevent drawing outside of our render area
-                    this.drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this._displayWidth, this.displayHeight));
+                    this._drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this._displayWidth, this.displayHeight));
                     
                     BodiesMessage message = new BodiesMessage(bodiesToSend.ToArray(), JointsConfidenceWeight);
                     _udp.Send(message.Message);
@@ -535,9 +535,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     depthWidth = depthFrameDescription.Width;
                                     depthHeight = depthFrameDescription.Height;
 
-                                    if ((depthWidth * depthHeight) == this.depthFrameData.Length)
+                                    if ((depthWidth * depthHeight) == this._depthFrameData.Length)
                                     {
-                                        depthFrame.CopyFrameDataToArray(this.depthFrameData);
+                                        depthFrame.CopyFrameDataToArray(this._depthFrameData);
 
                                         depthFrameProcessed = true;
                                     }
@@ -549,15 +549,15 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                     colorWidth = colorFrameDescription.Width;
                                     colorHeight = colorFrameDescription.Height;
 
-                                    if ((colorWidth * colorHeight * this.bytesPerPixel) == this.colorFrameData.Length)
+                                    if ((colorWidth * colorHeight * this._bytesPerPixel) == this._colorFrameData.Length)
                                     {
                                         if (colorFrame.RawColorImageFormat == ColorImageFormat.Bgra)
                                         {
-                                            colorFrame.CopyRawFrameDataToArray(this.colorFrameData);
+                                            colorFrame.CopyRawFrameDataToArray(this._colorFrameData);
                                         }
                                         else
                                         {
-                                            colorFrame.CopyConvertedFrameDataToArray(this.colorFrameData, ColorImageFormat.Bgra);
+                                            colorFrame.CopyConvertedFrameDataToArray(this._colorFrameData, ColorImageFormat.Bgra);
                                         }
 
                                         colorFrameProcessed = true;
@@ -589,8 +589,8 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     int step = int.Parse(samplingTextBox.Text);
                     int oldstep = step; // TMA: Save the input sampling. If you want detail, after you get out of the detail zone update the step with this value.
 
-                    this.coordinateMapper.MapDepthFrameToColorSpace( this.depthFrameData, this.colorPoints);
-                    this.coordinateMapper.MapDepthFrameToCameraSpace(this.depthFrameData, this.cameraPoints);
+                    this._coordinateMapper.MapDepthFrameToColorSpace( this._depthFrameData, this._colorPoints);
+                    this._coordinateMapper.MapDepthFrameToCameraSpace(this._depthFrameData, this._cameraPoints);
                  
                     _headPos.Clear(); // TMA: Clear all the heads from previous frame.
                     _handPos.Clear(); // TMA: Clear all the hands from previous frame.
@@ -652,10 +652,10 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             if (!val || (val && player != 0xff))
                             {
 
-                                CameraSpacePoint p = this.cameraPoints[depthIndex];
+                                CameraSpacePoint p = this._cameraPoints[depthIndex];
 
                                 // retrieve the depth to color mapping for the current depth pixel
-                                ColorSpacePoint colorPoint = this.colorPoints[depthIndex];
+                                ColorSpacePoint colorPoint = this._colorPoints[depthIndex];
 
                                 byte r = 0; byte g = 0; byte b = 0;
 
@@ -665,14 +665,14 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                 if ((colorX >= 0) && (colorX < colorWidth) && (colorY >= 0) && (colorY < colorHeight))
                                 {
                                     // calculate index into color array
-                                    int colorIndex = ((colorY * colorWidth) + colorX) * this.bytesPerPixel;
+                                    int colorIndex = ((colorY * colorWidth) + colorX) * this._bytesPerPixel;
 
                                     // set source for copy to the color pixel
-                                    int displayIndex = depthIndex * this.bytesPerPixel;
+                                    int displayIndex = depthIndex * this._bytesPerPixel;
 
-                                    b = this.colorFrameData[colorIndex++];
-                                    g = this.colorFrameData[colorIndex++];
-                                    r = this.colorFrameData[colorIndex++];
+                                    b = this._colorFrameData[colorIndex++];
+                                    g = this._colorFrameData[colorIndex++];
+                                    r = this._colorFrameData[colorIndex++];
 
                                 }
 
@@ -843,11 +843,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                 if (trackingState == TrackingState.Tracked)
                 {
-                    drawBrush = this.trackedJointBrush;
+                    drawBrush = this._trackedJointBrush;
                 }
                 else if (trackingState == TrackingState.Inferred)
                 {
-                    drawBrush = this.inferredJointBrush;
+                    drawBrush = this._inferredJointBrush;
                 }
 
                 if (drawBrush != null)
@@ -879,7 +879,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             }
 
             // We assume all drawn bones are inferred unless BOTH joints are tracked
-            Pen drawPen = this.inferredBonePen;
+            Pen drawPen = this._inferredBonePen;
             if ((joint0.TrackingState == TrackingState.Tracked) && (joint1.TrackingState == TrackingState.Tracked))
             {
                 drawPen = drawingPen;
@@ -899,15 +899,15 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             switch (handState)
             {
                 case HandState.Closed:
-                    drawingContext.DrawEllipse(this.handClosedBrush, null, handPosition, HandSize, HandSize);
+                    drawingContext.DrawEllipse(this._handClosedBrush, null, handPosition, HandSize, HandSize);
                     break;
 
                 case HandState.Open:
-                    drawingContext.DrawEllipse(this.handOpenBrush, null, handPosition, HandSize, HandSize);
+                    drawingContext.DrawEllipse(this._handOpenBrush, null, handPosition, HandSize, HandSize);
                     break;
 
                 case HandState.Lasso:
-                    drawingContext.DrawEllipse(this.handLassoBrush, null, handPosition, HandSize, HandSize);
+                    drawingContext.DrawEllipse(this._handLassoBrush, null, handPosition, HandSize, HandSize);
                     break;
             }
         }
@@ -962,7 +962,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
         {
             // on failure, set the status text
-            this.StatusText = this.kinectSensor.IsAvailable ? Properties.Resources.RunningStatusText
+            this.StatusText = this._kinectSensor.IsAvailable ? Properties.Resources.RunningStatusText
                                                             : Properties.Resources.SensorNotAvailableStatusText;
         }
 
