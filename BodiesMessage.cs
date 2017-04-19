@@ -19,7 +19,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         HandRightPosition
     }
 
-
     public enum BodyPropertiesTypes
     {
         UID,

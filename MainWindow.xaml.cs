@@ -301,6 +301,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
             _udpListener = new UdpListener(int.Parse(UdpPort) + 1);
             _udpListener.UdpRestart();
+
         }
 
         /// <summary>
@@ -600,11 +601,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     if (!bnone) // TMA: If it isn't:
                     {
                         bool? b = heads.IsChecked; //TMA: Is it 'Heads' ?
-                        bheads = b != null ? (bool)b : false;
+                        bheads = b != null ? (bool) b : false;
                         bool? b2 = hands.IsChecked;
-                        bhands = b2 != null ? (bool)b2 : false;
+                        bhands = b2 != null ? (bool) b2 : false;
                         bool? b3 = vr.IsChecked;
-                        bVR = b3 != null ? (bool)b3 : false;
+                        bVR = b3 != null ? (bool) b3 : false;
 
                         foreach (Body body in _bodies)
                         {
@@ -967,15 +968,15 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            resetBroadcast();
+            ResetBroadcast();
         }
 
         private void portTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == System.Windows.Input.Key.Enter) resetBroadcast();
+            if (e.Key == System.Windows.Input.Key.Enter) ResetBroadcast();
         }
 
-        private void resetBroadcast()
+        private void ResetBroadcast()
         {
             UdpPort = portTextBox.Text;
             _udp.Reset(int.Parse(UdpPort));
@@ -985,9 +986,22 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         }
     }
 }
-////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 
+            //udpListener = new UdpListener(int.Parse(UdpPort) + 1);
+            //udpListener.udpRestart();
+    
+                    //dc.DrawRectangle(Brushes.White, null, new Rect(0.0, 0.0, this._displayWidth, this.displayHeight));
+                   // dc.DrawRectangle(Brushes.White, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+                   
+
+    
+            // udp.reset(int.Parse(UdpPort));
+            // udpListener.Port = int.Parse(UdpPort)+1;
+            // udpListener.udpRestart();
+            // expander.IsExpanded = false;   
+         ////////////////////////////////////////////////////////////////////////////////////////////////
         udpListener = new UdpListener(int.Parse(UdpPort) + 1);
         udpListener.udpRestart();
            udp.reset(int.Parse(UdpPort));

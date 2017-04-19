@@ -37,7 +37,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 _udp = new UdpClient();
                 _streaming = true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
@@ -56,8 +56,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                         _lastSent = DateTime.Now;
                     //}
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
+                    // ignored
                 }
             }
         }
