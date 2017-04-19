@@ -15,6 +15,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         public const char SET = '=';
     }
 
+    public enum HandScreenSpace
+    {
+        UID,
+        HandLeftPosition,
+        HandRightPosition
+    }
 
     public enum BodyPropertiesTypes
     {
