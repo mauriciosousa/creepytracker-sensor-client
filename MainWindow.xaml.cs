@@ -9,15 +9,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
     using System.Windows;
     using System.Windows.Media;
-    using System.Windows.Media.Imaging;
-    using System.Text;
     using Microsoft.Kinect;
-
 
     /// <summary>
     /// Interaction logic for MainWindow
@@ -187,8 +181,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// </summary>
         public MainWindow()
         {
-            
-
             // one sensor is currently supported
             this.kinectSensor = KinectSensor.GetDefault();
 
@@ -309,8 +301,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             JointsConfidenceWeight = f.JointConfidenceWeight;
             udpListener = new UdpListener(int.Parse(f.ListenPort));
             udpListener.udpRestart();
-
-
         }
 
         /// <summary>
@@ -454,21 +444,17 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
 
                 NumberOfBodies = 0;
-                List<Microsoft.Kinect.Body> bodiesToSend = new List<Body>();
+                List<Body> bodiesToSend = new List<Body>();
 
                 using (DrawingContext dc = this.drawingGroup.Open())
                 {
                     // Draw a transparent background to set the render size
                     dc.DrawRectangle(Brushes.White, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
 
-                    
-
                     int penIndex = 0;
                     foreach (Body body in this.bodies)
                     {
                         Pen drawPen = this.bodyColors[penIndex++];
-
-                        
 
                         if (body.IsTracked)
                         {
@@ -500,8 +486,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                             this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
                             this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
-
-                            
                         }
                     }
 
@@ -514,7 +498,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 }
             }
         }
-
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
@@ -601,8 +584,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     }
                 }
 
-
-
                 // we got all frames
                 if (multiSourceFrameProcessed && depthFrameProcessed && colorFrameProcessed && bodyIndexFrameProcessed)
                 {
@@ -632,7 +613,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             {
                                 foreach (Joint j in body.Joints.Values)
                                 {
-                                    if ((bheads || bVR) && j.JointType == Microsoft.Kinect.JointType.Head) // TMA: If it's 'Heads'
+                                    if ((bheads || bVR) && j.JointType == JointType.Head) // TMA: If it's 'Heads'
                                     {
                                         Vector4 newHead = new Vector4();
                                         newHead.X = j.Position.X;
@@ -640,7 +621,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                         newHead.Z = j.Position.Z;
                                         head_pos.Add(newHead); // TMA: Store in the heads vector
                                     }
-                                    else if ((bhands || bVR) && (j.JointType == Microsoft.Kinect.JointType.HandLeft || j.JointType == Microsoft.Kinect.JointType.HandRight)) // TMA: If it's 'Hands'
+                                    else if ((bhands || bVR) && (j.JointType == JointType.HandLeft || j.JointType == JointType.HandRight)) // TMA: If it's 'Hands'
                                     {
                                         Vector4 newHand = new Vector4();
                                         newHand.X = j.Position.X;
@@ -1004,8 +985,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             udp.reset(int.Parse(UdpPort));
             udpListener.Port = int.Parse(UdpPort)+1;
             udpListener.udpRestart();
-            expander.IsExpanded = false;
-            
+            expander.IsExpanded = false;   
         }
     }
 }

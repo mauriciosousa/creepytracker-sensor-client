@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Kinect = Microsoft.Kinect;
+﻿using System.Collections.Generic;
 using System;
-using System.Linq;
 
 namespace Microsoft.Samples.Kinect.BodyBasics
 {
@@ -15,6 +12,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         public const char SET = '=';
     }
 
+    public enum HandScreenSpace
+    {
+        HandLeftPosition,
+        HandRightPosition
+    }
 
     public enum BodyPropertiesTypes
     {
@@ -26,14 +28,13 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         Confidence
     }
 
-
     public class BodiesMessage
     {
         private object _bodies;
 
-        public BodiesMessage(Microsoft.Kinect.Body   [] listOfBodies, Dictionary<string, int> jointsConfidenceWeight)
+        public BodiesMessage(Microsoft.Kinect.Body[] listOfBodies, Dictionary<string, int> jointsConfidenceWeight)
         {
-            Message = "BodiesMessage"+MessageSeparators.L0 + Environment.MachineName;
+            Message = "BodiesMessage" + MessageSeparators.L0 + Environment.MachineName;
             if (listOfBodies.Length == 0) Message += "" + MessageSeparators.L1 + "None";
             else
             {
@@ -44,7 +45,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 }
             }
         }
-
         public string Message { get; private set; }
     }
 }

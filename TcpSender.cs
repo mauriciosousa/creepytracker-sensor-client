@@ -67,7 +67,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         }
         public void write(byte[] frame)
         {
-
             if (_connected)
             {
                 try
